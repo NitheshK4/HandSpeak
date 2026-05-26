@@ -24,34 +24,38 @@ def get_finger_states(landmarks):
     """
     Compute finger extension states from a single set of 21 landmarks.
     landmarks: list of [x, y, z] or array of shape (21, 3)
-    
+
     Returns a dict with keys: thumb, index, middle, ring, pinky
     Each value is True (extended) or False (curled)
     """
     lm = np.array(landmarks)
     wrist = lm[WRIST]
-    
+
     def dist2d(a, b):
         return np.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
-    
-    # For index/middle/ring/pinky: tip is extended if it's farther from wrist than PIP
-    index_ext = dist2d(lm[INDEX_TIP], wrist) > dist2d(lm[INDEX_PIP], wrist)
+
+    # Index/Middle/Ring/Pinky: tip is extended if farther from wrist than PIP
+    index_ext  = dist2d(lm[INDEX_TIP],  wrist) > dist2d(lm[INDEX_PIP],  wrist)
     middle_ext = dist2d(lm[MIDDLE_TIP], wrist) > dist2d(lm[MIDDLE_PIP], wrist)
-    ring_ext = dist2d(lm[RING_TIP], wrist) > dist2d(lm[RING_PIP], wrist)
-    pinky_ext = dist2d(lm[PINKY_TIP], wrist) > dist2d(lm[PINKY_PIP], wrist)
-    
-    # Thumb: extended if tip Y is significantly above IP joint (up = smaller Y in screen space)
-    # Also consider horizontal extension relative to index MCP
-    thumb_up = lm[THUMB_TIP][1] < lm[THUMB_IP][1] - 0.02
-    thumb_out = abs(lm[THUMB_TIP][0] - lm[INDEX_MCP][0]) > abs(lm[THUMB_IP][0] - lm[INDEX_MCP][0])
-    thumb_ext = thumb_up or thumb_out
-    
+    ring_ext   = dist2d(lm[RING_TIP],   wrist) > dist2d(lm[RING_PIP],   wrist)
+    pinky_ext  = dist2d(lm[PINKY_TIP],  wrist) > dist2d(lm[PINKY_PIP],  wrist)
+
+    # Thumb: use multiple heuristics for robustness
+    # Rule 1: tip is above IP joint vertically (pointing up)
+    thumb_tip_above_ip = lm[THUMB_TIP][1] < lm[THUMB_IP][1] - 0.015
+    # Rule 2: tip is far from index MCP horizontally (pointing sideways)
+    thumb_tip_far_from_index = dist2d(lm[THUMB_TIP], lm[INDEX_MCP]) > dist2d(lm[THUMB_IP], lm[INDEX_MCP]) * 1.1
+    # Rule 3: tip is far from the wrist (not tucked under)
+    thumb_tip_extended = dist2d(lm[THUMB_TIP], wrist) > dist2d(lm[THUMB_IP], wrist)
+
+    thumb_ext = thumb_tip_above_ip or thumb_tip_far_from_index or thumb_tip_extended
+
     return {
-        "thumb": thumb_ext,
-        "index": index_ext,
+        "thumb":  thumb_ext,
+        "index":  index_ext,
         "middle": middle_ext,
-        "ring": ring_ext,
-        "pinky": pinky_ext
+        "ring":   ring_ext,
+        "pinky":  pinky_ext
     }
 
 
