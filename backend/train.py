@@ -85,9 +85,13 @@ def load_data(data_path="data/sign_dataset.json"):
     
     return X, y, class_to_idx, idx_to_class
 
-def train_pytorch_model(model, train_loader, val_loader, num_classes, epochs=30, lr=0.001):
+def train_pytorch_model(model, train_loader, val_loader, num_classes, epochs=60, lr=0.001):
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
+    # Reduce LR by 50% if val_loss doesn't improve for 8 epochs
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, mode='min', factor=0.5, patience=8, verbose=False
+    )
     
     history = {
         "train_loss": [], "val_loss": [],
@@ -142,6 +146,9 @@ def train_pytorch_model(model, train_loader, val_loader, num_classes, epochs=30,
                 
         val_loss = val_running_loss / total_val
         val_acc = correct_val / total_val
+        
+        # Step LR scheduler on val loss
+        scheduler.step(val_loss)
         
         history["train_loss"].append(float(train_loss))
         history["val_loss"].append(float(val_loss))

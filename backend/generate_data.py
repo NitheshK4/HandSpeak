@@ -375,43 +375,44 @@ def rotate_landmarks_3d(landmarks, ax, ay, az):
     rotated = shifted @ Rx @ Ry @ Rz
     return rotated + center
 
-def augment_landmarks(template_fn, samples_count=200):
+def augment_landmarks(template_fn, samples_count=250):
     augmented_data = []
     
     for _ in range(samples_count):
         landmarks = template_fn()
         
-        # 1. Scale hand landmarks slightly
-        scale = np.random.uniform(0.85, 1.15)
+        # 1. Scale hand landmarks slightly (wider range for more diversity)
+        scale = np.random.uniform(0.80, 1.20)
         center = landmarks[0].copy() # wrist center
         landmarks = (landmarks - center) * scale + center
         
-        # 2. Rotate hand in 3D (small angles to simulate hand tilt)
-        ax = np.random.uniform(-0.2, 0.2)
-        ay = np.random.uniform(-0.2, 0.2)
-        az = np.random.uniform(-0.3, 0.3)
+        # 2. Rotate hand in 3D (simulate hand tilt at different angles)
+        ax = np.random.uniform(-0.25, 0.25)
+        ay = np.random.uniform(-0.25, 0.25)
+        az = np.random.uniform(-0.35, 0.35)
         landmarks = rotate_landmarks_3d(landmarks, ax, ay, az)
         
-        # 3. Translate hand in frame
-        tx = np.random.uniform(-0.15, 0.15)
-        ty = np.random.uniform(-0.15, 0.15)
-        tz = np.random.uniform(-0.05, 0.05)
+        # 3. Translate hand in frame (simulate different hand positions)
+        tx = np.random.uniform(-0.18, 0.18)
+        ty = np.random.uniform(-0.18, 0.18)
+        tz = np.random.uniform(-0.06, 0.06)
         landmarks += np.array([tx, ty, tz])
         
-        # 4. Add Gaussian noise to coordinates
-        noise = np.random.normal(0, 0.005, landmarks.shape)
+        # 4. Add Gaussian noise (simulate tracking jitter)
+        noise = np.random.normal(0, 0.006, landmarks.shape)
         landmarks += noise
         
-        # 5. Horizontal flip mirroring (50% probability) to support both left and right hands
+        # 5. Horizontal flip (supports both left and right hands)
         if np.random.rand() > 0.5:
             wrist_x = landmarks[0, 0]
             landmarks[:, 0] = 2 * wrist_x - landmarks[:, 0]
         
-        # Round to 4 decimal places for cleanliness in JSON
+        # Round to 4 decimal places for clean JSON
         landmarks = np.round(landmarks, 4).tolist()
         augmented_data.append(landmarks)
         
     return augmented_data
+
 
 def main():
     print("Generating synthetic datasets...")
