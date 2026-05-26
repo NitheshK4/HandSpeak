@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HandSpeak — AI Sign Language Recognition</title>
+    <meta name="description" content="HandSpeak: Real-time multicultural sign language recognition powered by AI — supporting ASL, ISL, BSL and Universal gestures.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- MediaPipe CDNs -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-hand-sparkles brand-logo"></i>
+                    <div class="brand-text">
+                        <h1>HandSpeak</h1>
+                        <span>AI Sign Language Recognition</span>
+                    </div>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-btn active" data-target="live-tab">
+                    <i class="fa-solid fa-video"></i> Live Inference
+                </button>
+                <button class="nav-btn" data-target="record-tab">
+                    <i class="fa-solid fa-circle-dot"></i> Gesture Recorder
+                </button>
+                <button class="nav-btn" data-target="metrics-tab">
+                    <i class="fa-solid fa-chart-line"></i> Model Benchmarks
+                </button>
+            </nav>
+            <div class="connection-status">
+                <div class="status-indicator online" id="status-dot"></div>
+                <span id="status-text">Connecting to Backend...</span>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h2>Real-time Sign Language Detection</h2>
+                    <p>ASL · ISL · BSL · Universal — Powered by Rule-Based AI + GNN + MLP + Random Forest</p>
+                </div>
+                <div class="culture-indicator">
+                    <label for="global-culture">Active Culture Context:</label>
+                    <select id="global-culture" class="custom-select">
+                        <option value="UNIVERSAL" selected>Universal (All Signs)</option>
+                        <option value="ASL">ASL (American)</option>
+                        <option value="ISL">ISL (Indian)</option>
+                        <option value="BSL">BSL (British)</option>
+                        <option value="ALL">All Cultures</option>
+                    </select>
+                </div>
+            </header>
+
+            <div class="dashboard-grid">
+                <!-- Left Column Layout -->
+                <div class="left-column">
+                    <!-- Webcam Stream -->
+                    <section class="camera-card card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-camera"></i> Interactive Video Feed</h3>
+                            <div class="camera-actions">
+                                <button id="toggle-camera" class="btn btn-secondary">
+                                    <i class="fa-solid fa-video-slash"></i> Stop Camera
+                                </button>
+                            </div>
+                        </div>
+                        <div class="video-container">
+                            <video id="webcam" autoplay playsinline muted></video>
+                            <canvas id="hand-canvas"></canvas>
+                            <div class="detection-overlay" id="detection-msg">
+                                <span class="pulse-dot"></span> Detecting Hand Landmarks...
+                            </div>
+                        </div>
+                        <div class="fps-counter">
+                            <span>Webcam FPS: <strong id="webcam-fps">0</strong></span>
+                            <span>Backend Latency: <strong id="api-latency">0ms</strong></span>
+                        </div>
+                    </section>
+
+                    <!-- 3D Projection Visualizer -->
+                    <section class="rotator-card card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-cube"></i> Interactive 3D Skeleton</h3>
+                            <span class="rotator-hint"><i class="fa-solid fa-arrows-spin"></i> Click & Drag to Orbit</span>
+                        </div>
+                        <div class="rotator-container">
+                            <canvas id="rotator-canvas"></canvas>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right Panel: Dynamic Tabs Content -->
+                <section class="details-card card">
+                    <!-- Tab 1: Live Inference -->
+                    <div class="tab-content active" id="live-tab">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-brain"></i> Multi-Model Predictions</h3>
+                        </div>
+                        
+                        <div class="prediction-highlight">
+                            <div class="best-prediction">
+                                <span class="label"><i class="fa-solid fa-wand-magic-sparkles"></i> Live Sign Detection (Rule-Based)</span>
+                                <h2 id="top-prediction-text">No Hand Detected</h2>
+                                <div class="prediction-meta">
+                                    <span class="badge" id="top-culture-badge">---</span>
+                                    <span class="badge" id="top-confidence-badge">---</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rule-Based classifier card (PRIMARY) -->
+                        <div class="model-result-row" style="border: 1.5px solid var(--color-accent); border-radius: 10px; background: rgba(0,242,254,0.04);">
+                            <div class="model-badge rule-color">⚡ Rule</div>
+                            <div class="model-details">
+                                <div class="model-desc">
+                                    <span class="model-prediction rule-text" id="rule-pred">---</span>
+                                    <span class="model-latency" id="rule-lat">--- ms</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar rule-bg" id="rule-conf-bar" style="width: 0%"></div>
+                                </div>
+                                <span class="confidence-val" id="rule-conf-text">Confidence: 0%</span>
+                            </div>
+                        </div>
+
+                        <!-- GNN prediction results card -->
+                        <div class="model-result-row">
+                            <div class="model-badge gnn-color">GNN</div>
+                            <div class="model-details">
+                                <div class="model-desc">
+                                    <span class="model-prediction" id="gnn-pred">---</span>
+                                    <span class="model-latency" id="gnn-lat">--- ms</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar gnn-bg" id="gnn-conf-bar" style="width: 0%"></div>
+                                </div>
+                                <span class="confidence-val" id="gnn-conf-text">Confidence: 0%</span>
+                            </div>
+                        </div>
+
+                        <!-- MLP prediction results card -->
+                        <div class="model-result-row">
+                            <div class="model-badge mlp-color">MLP</div>
+                            <div class="model-details">
+                                <div class="model-desc">
+                                    <span class="model-prediction" id="mlp-pred">---</span>
+                                    <span class="model-latency" id="mlp-lat">--- ms</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar mlp-bg" id="mlp-conf-bar" style="width: 0%"></div>
+                                </div>
+                                <span class="confidence-val" id="mlp-conf-text">Confidence: 0%</span>
+                            </div>
+                        </div>
+
+                        <!-- Random Forest prediction results card -->
+                        <div class="model-result-row">
+                            <div class="model-badge rf-color">Random Forest</div>
+                            <div class="model-details">
+                                <div class="model-desc">
+                                    <span class="model-prediction" id="rf-pred">---</span>
+                                    <span class="model-latency" id="rf-lat">--- ms</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar rf-bg" id="rf-conf-bar" style="width: 0%"></div>
+                                </div>
+                                <span class="confidence-val" id="rf-conf-text">Confidence: 0%</span>
+                            </div>
+                        </div>
+
+                        <!-- Sentence Builder Widget -->
+                        <div class="sentence-builder-wrapper">
+                            <div class="card-header-sub">
+                                <h4><i class="fa-solid fa-comment-dots"></i> Sentence Builder</h4>
+                                <button id="toggle-speech" class="btn btn-secondary btn-sm active">
+                                    <i class="fa-solid fa-volume-high"></i> TTS: On
+                                </button>
+                            </div>
+                            <div class="sentence-box">
+                                <div id="sentence-text" class="sentence-placeholder">Hold a pose for 1.5 seconds to build a phrase...</div>
+                            </div>
+                            <div class="sentence-controls">
+                                <button id="btn-speak-all" class="btn btn-secondary btn-sm" disabled>
+                                    <i class="fa-solid fa-play"></i> Speak Out Loud
+                                </button>
+                                <button id="btn-clear-sentence" class="btn btn-danger btn-sm" disabled>
+                                    <i class="fa-solid fa-trash-can"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Activity Log -->
+                        <div class="prediction-history-wrapper">
+                            <h4><i class="fa-solid fa-list-check"></i> Translation Activity Log</h4>
+                            <div class="history-list" id="history-list">
+                                <div class="history-item empty">No translations recorded yet.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Gesture Recorder -->
+                    <div class="tab-content" id="record-tab">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-circle-dot"></i> Record Custom Gesture</h3>
+                        </div>
+                        <div class="recorder-form">
+                            <div class="form-group">
+                                <label for="record-culture">Target Culture Sign Language</label>
+                                <select id="record-culture" class="custom-select">
+                                    <option value="UNIVERSAL" selected>Universal (All Signs)</option>
+                                    <option value="ASL">ASL (American)</option>
+                                    <option value="ISL">ISL (Indian)</option>
+                                    <option value="BSL">BSL (British)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="record-label">Gesture Sign Label</label>
+                                <input type="text" id="record-label" placeholder="e.g. ThankYou, Hello, Namaste" class="custom-input">
+                            </div>
+                            <div class="record-instructions">
+                                <h5>Instructions:</h5>
+                                <p>Position your hand in front of the camera. Once landmarks are tracked, click <strong>"Capture Frame"</strong>. We recommend collecting 20-30 frames per gesture at slightly different positions/angles.</p>
+                            </div>
+                            
+                            <div class="recorder-actions">
+                                <button id="btn-capture-frame" class="btn btn-primary" disabled>
+                                    <i class="fa-solid fa-camera-retro"></i> Capture Frame
+                                </button>
+                                <button id="btn-save-gesture" class="btn btn-success" disabled>
+                                    <i class="fa-solid fa-floppy-disk"></i> Save to Dataset (<span id="recorded-count">0</span> frames)
+                                </button>
+                                <button id="btn-clear-recorded" class="btn btn-danger" style="display:none;">
+                                    Reset Recording
+                                </button>
+                            </div>
+                            <div id="record-status-msg" class="status-msg"></div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Model Benchmarks -->
+                    <div class="tab-content" id="metrics-tab">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-chart-bar"></i> Performance Benchmark</h3>
+                            <button id="btn-retrain" class="btn btn-primary">
+                                <i class="fa-solid fa-rotate"></i> Retrain Models
+                            </button>
+                        </div>
+                        <div class="metrics-scroller">
+                            <div class="charts-grid">
+                                <div class="chart-container">
+                                    <h4>Accuracy Comparison (%)</h4>
+                                    <canvas id="accuracy-chart"></canvas>
+                                </div>
+                                <div class="chart-container">
+                                    <h4>Average Inference Latency (ms)</h4>
+                                    <canvas id="latency-chart"></canvas>
+                                </div>
+                            </div>
+                            
+                            <div class="training-metrics-table-wrapper">
+                                <h4>Model Comparison Summary</h4>
+                                <table class="metrics-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Model Architecture</th>
+                                            <th>Validation Accuracy</th>
+                                            <th>Training Time</th>
+                                            <th>Inference Latency</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong class="gnn-text">Graph Neural Network (GCN)</strong></td>
+                                            <td id="table-gnn-acc">---</td>
+                                            <td id="table-gnn-time">---</td>
+                                            <td id="table-gnn-lat">---</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong class="mlp-text">Multi-Layer Perceptron (MLP)</strong></td>
+                                            <td id="table-mlp-acc">---</td>
+                                            <td id="table-mlp-time">---</td>
+                                            <td id="table-mlp-lat">---</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong class="rf-text">Random Forest Classifier</strong></td>
+                                            <td id="table-rf-acc">---</td>
+                                            <td id="table-rf-time">---</td>
+                                            <td id="table-rf-lat">---</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="chart-container full-width">
+                                <h4>Training Loss History (PyTorch GCN vs MLP)</h4>
+                                <canvas id="loss-history-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Re-training Loader Modal -->
+    <div class="modal-overlay" id="training-modal">
+        <div class="modal-card">
+            <div class="spinner"></div>
+            <h3>Training in Progress</h3>
+            <p>PyTorch GCN, MLP, and Random Forest models are currently being trained on the landmark dataset. This will take a few seconds...</p>
+            <div class="modal-progress-track">
+                <div class="modal-progress-bar" style="width: 100%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Script -->
+    <script src="/static/app.js"></script>
+</body>
+</html>
