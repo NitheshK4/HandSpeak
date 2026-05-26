@@ -34,6 +34,9 @@
                 <button class="nav-btn active" data-target="live-tab">
                     <i class="fa-solid fa-video"></i> Live Inference
                 </button>
+                <button class="nav-btn" data-target="signs-tab">
+                    <i class="fa-solid fa-hand"></i> Signs Guide
+                </button>
                 <button class="nav-btn" data-target="record-tab">
                     <i class="fa-solid fa-circle-dot"></i> Gesture Recorder
                 </button>
@@ -210,6 +213,77 @@
                             <h4><i class="fa-solid fa-list-check"></i> Translation Activity Log</h4>
                             <div class="history-list" id="history-list">
                                 <div class="history-item empty">No translations recorded yet.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Gesture Recorder -->
+                    <!-- Tab 1.5: Signs Reference Guide -->
+                    <div class="tab-content" id="signs-tab">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-hand"></i> Signs Reference Guide</h3>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size:0.85rem; margin-bottom:1rem;">
+                            Show these hand shapes to the camera. Hold each pose steady for ~1.5 seconds.
+                        </p>
+
+                        <!-- Universal Signs -->
+                        <div class="signs-culture-block">
+                            <h4 class="signs-culture-title">⚡ Universal Signs</h4>
+                            <div class="signs-grid">
+                                <div class="sign-card"><span class="sign-emoji">👋</span><strong>Hello / Palm</strong><span class="sign-hint">All 5 fingers open</span></div>
+                                <div class="sign-card"><span class="sign-emoji">✊</span><strong>Fist / Yes</strong><span class="sign-hint">All fingers curled</span></div>
+                                <div class="sign-card"><span class="sign-emoji">👍</span><strong>Like / Thumbs Up</strong><span class="sign-hint">Thumb pointing up</span></div>
+                                <div class="sign-card"><span class="sign-emoji">👎</span><strong>Dislike</strong><span class="sign-hint">Thumb pointing down</span></div>
+                                <div class="sign-card"><span class="sign-emoji">✌️</span><strong>Peace / Victory</strong><span class="sign-hint">Index + Middle up</span></div>
+                                <div class="sign-card"><span class="sign-emoji">☝️</span><strong>Point / One</strong><span class="sign-hint">Index finger only</span></div>
+                                <div class="sign-card"><span class="sign-emoji">🤙</span><strong>Call</strong><span class="sign-hint">Thumb + Pinky out</span></div>
+                                <div class="sign-card"><span class="sign-emoji">🤘</span><strong>Rock</strong><span class="sign-hint">Index + Pinky up</span></div>
+                                <div class="sign-card"><span class="sign-emoji">🖕</span><strong>MidFinger</strong><span class="sign-hint">Middle finger only</span></div>
+                                <div class="sign-card"><span class="sign-emoji">👌</span><strong>OK</strong><span class="sign-hint">Thumb+Index circle</span></div>
+                                <div class="sign-card"><span class="sign-emoji">🤟</span><strong>ILY / Love</strong><span class="sign-hint">Thumb+Index+Pinky</span></div>
+                                <div class="sign-card"><span class="sign-emoji">🔫</span><strong>Gun</strong><span class="sign-hint">Index up, thumb out</span></div>
+                                <div class="sign-card"><span class="sign-emoji">4️⃣</span><strong>Four</strong><span class="sign-hint">4 fingers, no thumb</span></div>
+                                <div class="sign-card"><span class="sign-emoji">3️⃣</span><strong>Three</strong><span class="sign-hint">Index+Middle+Ring</span></div>
+                                <div class="sign-card"><span class="sign-emoji">🤌</span><strong>Pinkie</strong><span class="sign-hint">Pinky only extended</span></div>
+                            </div>
+                        </div>
+
+                        <!-- ASL Signs -->
+                        <div class="signs-culture-block">
+                            <h4 class="signs-culture-title">🇺🇸 ASL — American Sign Language</h4>
+                            <div class="signs-grid">
+                                <div class="sign-card"><span class="sign-emoji">👋</span><strong>Hello</strong><span class="sign-hint">Open palm wave</span></div>
+                                <div class="sign-card"><span class="sign-emoji">✊</span><strong>Yes</strong><span class="sign-hint">Closed fist nod</span></div>
+                                <div class="sign-card"><span class="sign-emoji">👎</span><strong>No</strong><span class="sign-hint">Thumb pointing down</span></div>
+                                <div class="sign-card"><span class="sign-emoji">☝️</span><strong>Point</strong><span class="sign-hint">Index only extended</span></div>
+                                <div class="sign-card"><span class="sign-emoji">👌</span><strong>OK</strong><span class="sign-hint">Thumb+Index circle</span></div>
+                                <div class="sign-card"><span class="sign-emoji">🤟</span><strong>Love (ILY)</strong><span class="sign-hint">I Love You sign</span></div>
+                            </div>
+                        </div>
+
+                        <!-- ISL Signs -->
+                        <div class="signs-culture-block">
+                            <h4 class="signs-culture-title">🇮🇳 ISL — Indian Sign Language</h4>
+                            <div class="signs-grid">
+                                <div class="sign-card"><span class="sign-emoji">🙏</span><strong>Namaste</strong><span class="sign-hint">Open palm greeting</span></div>
+                                <div class="sign-card"><span class="sign-emoji">👋</span><strong>Alvida</strong><span class="sign-hint">Open palm goodbye</span></div>
+                                <div class="sign-card"><span class="sign-emoji">👍</span><strong>TheekHai</strong><span class="sign-hint">Thumbs up = OK/Good</span></div>
+                                <div class="sign-card"><span class="sign-emoji">👎</span><strong>PasandNahi</strong><span class="sign-hint">Thumbs down = Dislike</span></div>
+                                <div class="sign-card"><span class="sign-emoji">✌️</span><strong>Vijay</strong><span class="sign-hint">V sign = Victory</span></div>
+                                <div class="sign-card"><span class="sign-emoji">👌</span><strong>Achaa</strong><span class="sign-hint">OK = Great/Achaa</span></div>
+                            </div>
+                        </div>
+
+                        <!-- BSL Signs -->
+                        <div class="signs-culture-block">
+                            <h4 class="signs-culture-title">🇬🇧 BSL — British Sign Language</h4>
+                            <div class="signs-grid">
+                                <div class="sign-card"><span class="sign-emoji">☝️</span><strong>Salute</strong><span class="sign-hint">Index finger point</span></div>
+                                <div class="sign-card"><span class="sign-emoji">👍</span><strong>Awesome</strong><span class="sign-hint">Thumbs up</span></div>
+                                <div class="sign-card"><span class="sign-emoji">👎</span><strong>Dislike</strong><span class="sign-hint">Thumbs down</span></div>
+                                <div class="sign-card"><span class="sign-emoji">✌️</span><strong>Peace</strong><span class="sign-hint">Index + Middle up</span></div>
+                                <div class="sign-card"><span class="sign-emoji">👌</span><strong>Perfect</strong><span class="sign-hint">OK ring sign</span></div>
                             </div>
                         </div>
                     </div>
