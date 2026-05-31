@@ -124,8 +124,26 @@ def classify_gesture(landmarks, culture="ALL"):
     # Normalized thumb-index distance (relative to hand size)
     norm_ti_dist = thumb_index_dist / scale if scale > 0 else thumb_index_dist
     
+    def dist2d(a, b):
+        return np.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
+    
     # ─── Match by fingerstate pattern ───────────────────────────────────────
     
+    # Spock Salute: All 5 fingers extended, but middle-ring distance is large
+    # and index-middle & ring-pinky distances are small.
+    if t and i and m and r and p:
+        lm = np.array(landmarks)
+        index_middle_dist = dist2d(lm[INDEX_TIP], lm[MIDDLE_TIP])
+        middle_ring_dist = dist2d(lm[MIDDLE_TIP], lm[RING_TIP])
+        ring_pinky_dist = dist2d(lm[RING_TIP], lm[PINKY_TIP])
+        
+        norm_mr = middle_ring_dist / scale if scale > 0 else 0
+        norm_im = index_middle_dist / scale if scale > 0 else 0
+        norm_rp = ring_pinky_dist / scale if scale > 0 else 0
+        
+        if norm_mr > 0.52 and norm_mr > norm_im * 1.4 and norm_mr > norm_rp * 1.1:
+            return _result("Spock", "UNIVERSAL", 0.94, states)
+            
     # ALL 5 extended = Open Palm / Hello / Namaste
     if t and i and m and r and p:
         if culture in ("ISL",):

@@ -29,12 +29,13 @@
     "UNIVERSAL_Rock": 26,
     "UNIVERSAL_Point": 27,
     "UNIVERSAL_Pinkie": 28,
-    "UNIVERSAL_Three": 29,
-    "UNIVERSAL_TwoUp": 30,
-    "UNIVERSAL_MidFinger": 31,
-    "UNIVERSAL_Gun": 32,
-    "UNIVERSAL_Grabbing": 33,
-    "UNIVERSAL_Grip": 34
+    "UNIVERSAL_Spock": 29,
+    "UNIVERSAL_Three": 30,
+    "UNIVERSAL_TwoUp": 31,
+    "UNIVERSAL_MidFinger": 32,
+    "UNIVERSAL_Gun": 33,
+    "UNIVERSAL_Grabbing": 34,
+    "UNIVERSAL_Grip": 35
   },
   "idx_to_class": {
     "0": "ASL_Hello",
@@ -66,11 +67,12 @@
     "26": "UNIVERSAL_Rock",
     "27": "UNIVERSAL_Point",
     "28": "UNIVERSAL_Pinkie",
-    "29": "UNIVERSAL_Three",
-    "30": "UNIVERSAL_TwoUp",
-    "31": "UNIVERSAL_MidFinger",
-    "32": "UNIVERSAL_Gun",
-    "33": "UNIVERSAL_Grabbing",
-    "34": "UNIVERSAL_Grip"
+    "29": "UNIVERSAL_Spock",
+    "30": "UNIVERSAL_Three",
+    "31": "UNIVERSAL_TwoUp",
+    "32": "UNIVERSAL_MidFinger",
+    "33": "UNIVERSAL_Gun",
+    "34": "UNIVERSAL_Grabbing",
+    "35": "UNIVERSAL_Grip"
   }
 }

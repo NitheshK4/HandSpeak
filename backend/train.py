@@ -90,7 +90,7 @@ def train_pytorch_model(model, train_loader, val_loader, num_classes, epochs=60,
     optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
     # Reduce LR by 50% if val_loss doesn't improve for 8 epochs
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode='min', factor=0.5, patience=8, verbose=False
+        optimizer, mode='min', factor=0.5, patience=8
     )
     
     history = {

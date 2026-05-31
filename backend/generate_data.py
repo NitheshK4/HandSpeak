@@ -275,6 +275,37 @@ def get_template_gun():
         landmarks[idx] = thumbs_up[idx]
     return landmarks
 
+def get_template_spock():
+    # Spock salute: thumb extended, index/middle together, ring/pinky together, gap between middle/ring
+    landmarks = get_template_open_palm()
+    
+    # Index finger (shifted slightly leftwards, closer to thumb)
+    landmarks[5] = [0.42, 0.65, -0.01]
+    landmarks[6] = [0.41, 0.50, -0.02]
+    landmarks[7] = [0.40, 0.40, -0.03]
+    landmarks[8] = [0.39, 0.30, -0.04]
+    
+    # Middle finger (shifted slightly leftwards, close to index)
+    landmarks[9] = [0.47, 0.62, 0.0]
+    landmarks[10] = [0.46, 0.46, -0.01]
+    landmarks[11] = [0.45, 0.35, -0.02]
+    landmarks[12] = [0.44, 0.24, -0.03]
+    
+    # Ring finger (shifted slightly rightwards)
+    landmarks[13] = [0.59, 0.65, -0.01]
+    landmarks[14] = [0.60, 0.50, -0.02]
+    landmarks[15] = [0.61, 0.40, -0.03]
+    landmarks[16] = [0.62, 0.31, -0.04]
+    
+    # Pinky finger (shifted slightly rightwards, close to ring)
+    landmarks[17] = [0.65, 0.70, -0.02]
+    landmarks[18] = [0.67, 0.58, -0.03]
+    landmarks[19] = [0.69, 0.50, -0.04]
+    landmarks[20] = [0.70, 0.42, -0.05]
+    
+    return landmarks
+
+
 def get_template_grabbing():
     landmarks = get_template_open_palm()
     wrist = landmarks[0]
@@ -337,6 +368,7 @@ CULTURE_SIGNS = {
         "Rock": get_template_rock,
         "Point": get_template_index_pointing,
         "Pinkie": get_template_pinkie,
+        "Spock": get_template_spock,
         "Three": get_template_three,
         "TwoUp": get_template_two_up,
         "MidFinger": get_template_mid_finger,
