@@ -1053,6 +1053,32 @@ function renderCharts(metrics) {
     });
 }
 
+// Keyboard Shortcuts Listener
+window.addEventListener('keydown', (e) => {
+    // Ignore keyboard shortcuts if the user is currently typing in an input or select
+    if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') {
+        return;
+    }
+    
+    const key = e.key.toLowerCase();
+    if (key === 'k') {
+        e.preventDefault();
+        toggleCameraBtn.click();
+    } else if (key === 's') {
+        e.preventDefault();
+        toggleSpeechBtn.click();
+    } else if (key === 'c') {
+        e.preventDefault();
+        btnCopySentence.click();
+    } else if (key === 'r') {
+        e.preventDefault();
+        btnClearSentence.click();
+    } else if (key === 'backspace' || key === 'b') {
+        e.preventDefault();
+        btnBackspace.click();
+    }
+});
+
 // Initial checks
 checkBackendHealth();
 render3DGrid();
