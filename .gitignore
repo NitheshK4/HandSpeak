@@ -25,6 +25,7 @@ backend/mlp_model.pth
 # Dataset (regenerate with generate_data.py)
 data/sign_dataset.json
 data/training_metrics.json
+data/training_history.json
 
 # macOS
 .DS_Store

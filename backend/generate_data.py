@@ -355,6 +355,12 @@ CULTURE_SIGNS = {
         "Peace": get_template_victory,
         "Perfect": get_template_ok_sign
     },
+    "LSE": {
+        "Hola": get_template_open_palm,
+        "Si": get_template_fist,
+        "No": get_template_thumbs_down,
+        "Gracias": get_template_ily_sign
+    },
     "UNIVERSAL": {
         "Call": get_template_call,
         "Dislike": get_template_thumbs_down,

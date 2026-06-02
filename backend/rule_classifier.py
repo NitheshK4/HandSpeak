@@ -150,12 +150,16 @@ def classify_gesture(landmarks, culture="ALL"):
             return _result("Namaste", "ISL", 0.92, states)
         elif culture in ("BSL",):
             return _result("Hello", "BSL", 0.90, states)
+        elif culture in ("LSE",):
+            return _result("Hola", "LSE", 0.92, states)
         return _result("Hello", "ASL", 0.92, states)
     
     # ALL curled = Fist / Yes
     if not t and not i and not m and not r and not p:
         if culture in ("ISL",):
             return _result("Yes", "ISL", 0.90, states)
+        elif culture in ("LSE",):
+            return _result("Si", "LSE", 0.90, states)
         return _result("Yes", "ASL", 0.90, states)
     
     # Thumb up, others curled = Thumbs Up / Like / Awesome / TheekHai
@@ -172,6 +176,8 @@ def classify_gesture(landmarks, culture="ALL"):
             return _result("PasandNahi", "ISL", 0.93, states)
         elif culture in ("BSL",):
             return _result("Dislike", "BSL", 0.93, states)
+        elif culture in ("LSE",):
+            return _result("No", "LSE", 0.93, states)
         return _result("Dislike", "UNIVERSAL", 0.93, states)
     
     # Index + Middle extended = Peace / Victory / Vijay
@@ -198,6 +204,8 @@ def classify_gesture(landmarks, culture="ALL"):
     
     # ILY (I Love You) = Thumb + Index + Pinky extended
     if t and i and not m and not r and p:
+        if culture in ("LSE",):
+            return _result("Gracias", "LSE", 0.91, states)
         return _result("Love", "ASL", 0.91, states)
     
     # Call sign = Thumb + Pinky extended (shaka / hang loose)
