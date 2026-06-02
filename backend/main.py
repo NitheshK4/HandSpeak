@@ -297,6 +297,17 @@ def save_gesture(data: CustomGestureData):
         
     return {"status": "saved", "message": f"Gesture '{data.culture}_{data.label}' recorded. Total samples: {len(existing_data)}."}
 
+@app.get("/api/export_dataset")
+def export_dataset():
+    dataset_path = "data/sign_dataset.json"
+    if not os.path.exists(dataset_path):
+        raise HTTPException(status_code=404, detail="Dataset file not found.")
+    return FileResponse(
+        dataset_path,
+        media_type="application/json",
+        filename="sign_dataset.json"
+    )
+
 # Mount frontend files (CSS, JS) so they can be loaded directly from server
 # We mount frontend at root /static
 if os.path.exists("frontend"):
