@@ -26,11 +26,12 @@
 - 🧠 **Graph Neural Network (GCN)** — custom hand skeleton GNN for deep structural understanding
 - 📊 **Multi-Layer Perceptron (MLP)** — fast neural baseline for comparison
 - 🌲 **Random Forest** — classic ML model for ensemble comparison
-- 🌍 **Multicultural Support** — ASL, ISL, BSL, and Universal gestures
+- 🌍 **Multicultural Support** — ASL, ISL, BSL, LSE (Spanish), and Universal gestures
 - 🗣️ **Text-to-Speech** — speaks detected signs out loud
-- ✍️ **Sentence Builder** — hold a pose to build full sentences word by word
-- 🎬 **Gesture Recorder** — record your own custom gestures and retrain
-- 📈 **Benchmarks Dashboard** — compare model accuracy, latency, and training time
+- ✍️ **Sentence Builder** — hold a pose to build full sentences word by word, with a **Backspace** button to edit mistakes
+- ⌨️ **Hands-Free Keyboard Shortcuts** — control the interface easily using hotkeys (`[K]` camera, `[S]` TTS speech, `[C]` copy, `[B]` backspace, `[R]` reset)
+- 💾 **Dataset Export Tool** — export the recorded custom gestures dataset in JSON format directly from the UI
+- 📈 **Benchmarks & Historical Run Logs** — compare model accuracy, latency, and training time, and track accuracy history across training sessions
 - 🖼️ **Interactive 3D Skeleton** — drag-to-orbit 3D hand visualizer
 - 🎨 **Premium Dark UI** — glassmorphism design with smooth animations
 
@@ -66,6 +67,9 @@
 
 ### 🇬🇧 BSL (British Sign Language)
 `Salute` · `Awesome` · `Dislike` · `Peace` · `Perfect`
+
+### 🇪🇸 LSE (Spanish Sign Language)
+`Hola` · `Si` · `No` · `Gracias`
 
 ---
 
@@ -189,6 +193,8 @@ open http://localhost:8000
 | `GET` | `/api/metrics` | Get model training metrics |
 | `POST` | `/api/train` | Trigger background model retraining |
 | `POST` | `/api/save_gesture` | Save a new custom gesture sample |
+| `GET` | `/api/export_dataset` | Export custom gesture dataset as JSON |
+| `GET` | `/api/training_history` | Retrieve historical logs of validation metrics |
 
 ### Example Predict Request
 ```json
@@ -265,6 +271,17 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 - [PyTorch](https://pytorch.org) — Deep learning framework
 - [FastAPI](https://fastapi.tiangolo.com) — High-performance Python API
 - [Chart.js](https://chartjs.org) — Beautiful charts for benchmarks
+
+---
+
+## 🆕 Recent Updates ( b6083ccc-5d47-43c1-8fca-cabc20566bb8 / June 2026 )
+
+We implemented 5 key enhancements to the system:
+1. **Sentence Builder Backspace**: Added a dedicated Backspace control and state management to let users delete mistakes in built sentences word by word.
+2. **Accessibility Keyboard Shortcuts**: Introduced keyboard keys to toggle camera `[K]`, speech `[S]`, copy `[C]`, backspace `[B]`, and clear `[R]`.
+3. **Dataset Export**: Created a backend endpoint `/api/export_dataset` and a UI download button to download the captured gesture dataset instantly.
+4. **Historical Accuracies Log**: Implemented `data/training_history.json` logger in `backend/train.py` and rendered the historic runs log in a UI table on the benchmarks tab.
+5. **Spanish (LSE) Sign Language**: Introduced support for Lengua de Señas Española with gestures `Hola`, `Si`, `No`, and `Gracias`.
 
 ---
 
