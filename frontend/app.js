@@ -69,6 +69,7 @@ const toggleSpeechBtn = document.getElementById('toggle-speech');
 const sentenceTextEl = document.getElementById('sentence-text');
 const btnSpeakAll = document.getElementById('btn-speak-all');
 const btnCopySentence = document.getElementById('btn-copy-sentence');
+const btnBackspace = document.getElementById('btn-backspace');
 const btnClearSentence = document.getElementById('btn-clear-sentence');
 const historyListEl = document.getElementById('history-list');
 
@@ -480,6 +481,7 @@ function triggerSpeechAndSentence(word, culture, confidence, model) {
     // Enable buttons
     btnSpeakAll.disabled = false;
     btnCopySentence.disabled = false;
+    btnBackspace.disabled = false;
     btnClearSentence.disabled = false;
     
     // 3. Append to prediction log list
@@ -491,6 +493,7 @@ function triggerSentenceUpdate() {
         sentenceTextEl.innerHTML = '<div class="sentence-placeholder">Hold a pose for 1.5 seconds to build a phrase...</div>';
         btnSpeakAll.disabled = true;
         btnCopySentence.disabled = true;
+        btnBackspace.disabled = true;
         btnClearSentence.disabled = true;
     } else {
         sentenceTextEl.innerHTML = '';
@@ -510,6 +513,7 @@ function triggerSentenceUpdate() {
         });
         btnSpeakAll.disabled = false;
         btnCopySentence.disabled = false;
+        btnBackspace.disabled = false;
         btnClearSentence.disabled = false;
     }
 }
@@ -536,6 +540,13 @@ btnCopySentence.addEventListener('click', () => {
         }).catch(err => {
             console.error('Failed to copy text: ', err);
         });
+    }
+});
+
+btnBackspace.addEventListener('click', () => {
+    if (sentenceWords.length > 0) {
+        sentenceWords.pop();
+        triggerSentenceUpdate();
     }
 });
 
