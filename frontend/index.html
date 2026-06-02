@@ -398,6 +398,25 @@
                                 <h4>Training Loss History (PyTorch GCN vs MLP)</h4>
                                 <canvas id="loss-history-chart"></canvas>
                             </div>
+                            
+                            <div class="training-history-log-wrapper" style="margin-top: 2rem; margin-bottom: 2rem;">
+                                <h4>Historical Training Runs Log</h4>
+                                <table class="metrics-table" id="history-runs-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Timestamp</th>
+                                            <th>GCN Accuracy</th>
+                                            <th>MLP Accuracy</th>
+                                            <th>RF Accuracy</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="history-runs-tbody">
+                                        <tr>
+                                            <td colspan="4" style="text-align: center; color: var(--text-secondary);">No history log loaded yet.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </section>

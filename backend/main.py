@@ -308,6 +308,17 @@ def export_dataset():
         filename="sign_dataset.json"
     )
 
+@app.get("/api/training_history")
+def get_training_history():
+    history_path = "data/training_history.json"
+    if not os.path.exists(history_path):
+        return []
+    with open(history_path, "r") as f:
+        try:
+            return json.load(f)
+        except Exception:
+            return []
+
 # Mount frontend files (CSS, JS) so they can be loaded directly from server
 # We mount frontend at root /static
 if os.path.exists("frontend"):

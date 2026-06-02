@@ -905,9 +905,48 @@ async function fetchMetrics() {
                 renderCharts(data);
             }
         }
+        fetchTrainingHistory();
     } catch (err) {
         console.error("Failed to fetch metrics", err);
     }
+}
+
+async function fetchTrainingHistory() {
+    try {
+        const response = await fetch(`${API_URL}/api/training_history`);
+        if (response.ok) {
+            const history = await response.json();
+            renderTrainingHistoryTable(history);
+        }
+    } catch (err) {
+        console.error("Failed to fetch training history", err);
+    }
+}
+
+function renderTrainingHistoryTable(history) {
+    const tbody = document.getElementById('history-runs-tbody');
+    if (!tbody) return;
+    
+    if (!history || history.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align: center; color: var(--text-secondary);">No history log loaded yet.</td>
+            </tr>
+        `;
+        return;
+    }
+    
+    // Sort reverse chronological
+    const sortedHistory = [...history].reverse();
+    
+    tbody.innerHTML = sortedHistory.map(run => `
+        <tr>
+            <td>${run.timestamp}</td>
+            <td class="gnn-text" style="font-weight: 600;">${(run.gnn_val_acc * 100).toFixed(1)}%</td>
+            <td class="mlp-text" style="font-weight: 600;">${(run.mlp_val_acc * 100).toFixed(1)}%</td>
+            <td class="rf-text" style="font-weight: 600;">${(run.rf_val_acc * 100).toFixed(1)}%</td>
+        </tr>
+    `).join('');
 }
 
 function updateMetricsUI(metrics) {

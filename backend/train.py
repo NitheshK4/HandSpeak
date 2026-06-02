@@ -271,5 +271,29 @@ def run_training():
         
     print("Metrics successfully logged to data/training_metrics.json")
 
+    # Append to training history
+    history_path = "data/training_history.json"
+    history_data = []
+    if os.path.exists(history_path):
+        try:
+            with open(history_path, "r") as f:
+                history_data = json.load(f)
+        except Exception:
+            pass
+            
+    history_data.append({
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "gnn_val_acc": float(gcn_history["val_acc"][-1]),
+        "mlp_val_acc": float(mlp_history["val_acc"][-1]),
+        "rf_val_acc": float(rf_val_acc)
+    })
+    
+    try:
+        with open(history_path, "w") as f:
+            json.dump(history_data, f, indent=2)
+        print("Training run successfully logged to history.")
+    except Exception as e:
+        print(f"Error logging to history: {e}")
+
 if __name__ == "__main__":
     run_training()
