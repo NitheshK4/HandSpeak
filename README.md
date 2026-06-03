@@ -26,7 +26,7 @@
 - 🧠 **Graph Neural Network (GCN)** — custom hand skeleton GNN for deep structural understanding
 - 📊 **Multi-Layer Perceptron (MLP)** — fast neural baseline for comparison
 - 🌲 **Random Forest** — classic ML model for ensemble comparison
-- 🌍 **Multicultural Support** — ASL, ISL, BSL, LSE (Spanish), and Universal gestures
+- 🌍 **Multicultural Support** — ASL, ISL, BSL, LSE (Spanish), Digits (0-9), and Universal gestures
 - 🗣️ **Text-to-Speech** — speaks detected signs out loud
 - ✍️ **Sentence Builder** — hold a pose to build full sentences word by word, with a **Backspace** button to edit mistakes
 - ⌨️ **Hands-Free Keyboard Shortcuts** — control the interface easily using hotkeys (`[K]` camera, `[S]` TTS speech, `[C]` copy, `[B]` backspace, `[R]` reset)
@@ -71,22 +71,28 @@
 ### 🇪🇸 LSE (Spanish Sign Language)
 `Hola` · `Si` · `No` · `Gracias`
 
+### 🔢 Digits (Sign Language Digits)
+`0` · `1` · `2` · `3` · `4` · `5` · `6` · `7` · `8` · `9`
+
 ---
 
 ## 🏗️ Architecture
 
 ```
 HandSpeak/
+├── Sign Language Dataset/   # Local folder containing photos of digits 0-9
 ├── backend/
 │   ├── main.py              # FastAPI REST API server
 │   ├── models.py            # GCN & MLP model definitions (PyTorch)
 │   ├── train.py             # Training pipeline
 │   ├── generate_data.py     # Synthetic landmark dataset generator
+│   ├── process_kaggle_dataset.py # Kaggle/Local photo dataset processor & extractor
 │   ├── rule_classifier.py   # ⚡ Rule-based finger extension classifier
 │   ├── class_mapping.json   # Sign label ↔ index mapping
 │   ├── gcn_model.pth        # Trained GNN weights
 │   ├── mlp_model.pth        # Trained MLP weights
-│   └── rf_model.pkl         # Trained Random Forest
+│   ├── rf_model.pkl         # Trained Random Forest
+│   └── hand_landmarker.task # MediaPipe Tasks HandLandmarker model file
 │
 ├── frontend/
 │   ├── index.html           # Single-page application UI
@@ -276,12 +282,13 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 ## 🆕 Recent Updates ( b6083ccc-5d47-43c1-8fca-cabc20566bb8 / June 2026 )
 
-We implemented 5 key enhancements to the system:
+We implemented 6 key enhancements to the system:
 1. **Sentence Builder Backspace**: Added a dedicated Backspace control and state management to let users delete mistakes in built sentences word by word.
 2. **Accessibility Keyboard Shortcuts**: Introduced keyboard keys to toggle camera `[K]`, speech `[S]`, copy `[C]`, backspace `[B]`, and clear `[R]`.
 3. **Dataset Export**: Created a backend endpoint `/api/export_dataset` and a UI download button to download the captured gesture dataset instantly.
 4. **Historical Accuracies Log**: Implemented `data/training_history.json` logger in `backend/train.py` and rendered the historic runs log in a UI table on the benchmarks tab.
 5. **Spanish (LSE) Sign Language**: Introduced support for Lengua de Señas Española with gestures `Hola`, `Si`, `No`, and `Gracias`.
+6. **Sign Language Digits**: Integrated the kabilan03/sign-language-dataset (or local photos), extracted hand skeleton landmarks using the new MediaPipe Tasks HandLandmarker API, and successfully retrained all ML models (GNN, MLP, RF) on the combined dataset.
 
 ---
 
