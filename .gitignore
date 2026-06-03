@@ -49,3 +49,7 @@ logs/
 # Environment variables
 .env
 .env.local
+
+# Local dataset and models
+Sign Language Dataset/
+backend/hand_landmarker.task

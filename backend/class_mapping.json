@@ -39,7 +39,17 @@
     "UNIVERSAL_MidFinger": 36,
     "UNIVERSAL_Gun": 37,
     "UNIVERSAL_Grabbing": 38,
-    "UNIVERSAL_Grip": 39
+    "UNIVERSAL_Grip": 39,
+    "DIGITS_0": 40,
+    "DIGITS_1": 41,
+    "DIGITS_2": 42,
+    "DIGITS_3": 43,
+    "DIGITS_4": 44,
+    "DIGITS_5": 45,
+    "DIGITS_6": 46,
+    "DIGITS_7": 47,
+    "DIGITS_8": 48,
+    "DIGITS_9": 49
   },
   "idx_to_class": {
     "0": "ASL_Hello",
@@ -81,6 +91,16 @@
     "36": "UNIVERSAL_MidFinger",
     "37": "UNIVERSAL_Gun",
     "38": "UNIVERSAL_Grabbing",
-    "39": "UNIVERSAL_Grip"
+    "39": "UNIVERSAL_Grip",
+    "40": "DIGITS_0",
+    "41": "DIGITS_1",
+    "42": "DIGITS_2",
+    "43": "DIGITS_3",
+    "44": "DIGITS_4",
+    "45": "DIGITS_5",
+    "46": "DIGITS_6",
+    "47": "DIGITS_7",
+    "48": "DIGITS_8",
+    "49": "DIGITS_9"
   }
 }
