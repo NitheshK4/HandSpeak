@@ -530,6 +530,7 @@ btnCopySentence.addEventListener('click', () => {
     if (sentenceWords.length > 0) {
         const text = sentenceWords.join(' ');
         navigator.clipboard.writeText(text).then(() => {
+            showToast("Sentence copied to clipboard!", "success");
             const origHTML = btnCopySentence.innerHTML;
             btnCopySentence.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
             btnCopySentence.classList.remove('btn-secondary');
@@ -541,6 +542,7 @@ btnCopySentence.addEventListener('click', () => {
             }, 2000);
         }).catch(err => {
             console.error('Failed to copy text: ', err);
+            showToast("Failed to copy sentence.", "error");
         });
     }
 });
@@ -869,12 +871,16 @@ btnRetrain.addEventListener('click', async () => {
         try {
             const response = await fetch(`${API_URL}/api/train`, { method: 'POST' });
             if (response.ok) {
+                showToast("Model retraining started in the background...", "info");
                 setBackendStatus('training', 'Backend Training Models...');
                 trainingModal.classList.add('active');
                 pollTrainingStatus();
+            } else {
+                showToast("Failed to initiate retraining.", "error");
             }
         } catch (err) {
             console.error("Failed to start training", err);
+            showToast("Failed to retrain models due to connection error.", "error");
         }
     }
 });
@@ -889,6 +895,7 @@ function pollTrainingStatus() {
                     clearInterval(pollInterval);
                     trainingModal.classList.remove('active');
                     setBackendStatus('online', 'Connected to Backend');
+                    showToast("Models retrained successfully! Charts and metrics updated.", "success");
                     fetchMetrics(); // Refresh charts with new metrics!
                 }
             }
@@ -965,10 +972,14 @@ if (btnClearHistory) {
             try {
                 const response = await fetch(`${API_URL}/api/clear_training_history`, { method: 'POST' });
                 if (response.ok) {
+                    showToast("Historical training runs log cleared.", "success");
                     fetchTrainingHistory();
+                } else {
+                    showToast("Failed to clear history log.", "error");
                 }
             } catch (err) {
                 console.error("Failed to clear training history", err);
+                showToast("Failed to clear history log due to network error.", "error");
             }
         }
     });
@@ -1248,6 +1259,44 @@ async function fetchDatasetStats() {
         console.error("Failed to fetch dataset stats", err);
         container.innerHTML = `<div style="color: #ff3366; font-size: 0.8rem; text-align: center; padding: 1rem 0;">Error loading stats.</div>`;
     }
+}
+
+// Global Toast System
+function showToast(message, type = 'info') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    let iconClass = 'fa-circle-info';
+    if (type === 'success') iconClass = 'fa-circle-check';
+    else if (type === 'error') iconClass = 'fa-triangle-exclamation';
+    else if (type === 'warning') iconClass = 'fa-circle-exclamation';
+    
+    toast.innerHTML = `
+        <i class="fa-solid ${iconClass} toast-icon"></i>
+        <div class="toast-message">${message}</div>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Trigger entrance transition
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+    
+    // Auto dismiss after 3.5s
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            toast.remove();
+        }, 400);
+    }, 3500);
 }
 
 // Initial checks
