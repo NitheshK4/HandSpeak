@@ -1118,6 +1118,56 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
+// Signs Guide Filter and Search Logic
+const signsSearchInput = document.getElementById('signs-search');
+const signsFilterButtons = document.querySelectorAll('#signs-culture-filters button');
+const signsCultureBlocks = document.querySelectorAll('.signs-culture-block');
+
+function filterSignsGuide() {
+    const query = (signsSearchInput?.value || '').toLowerCase().trim();
+    const activeBtn = document.querySelector('#signs-culture-filters button.active');
+    const activeFilter = activeBtn ? activeBtn.getAttribute('data-filter') : 'ALL';
+    
+    signsCultureBlocks.forEach(block => {
+        const blockCulture = block.getAttribute('data-culture');
+        const matchesCulture = (activeFilter === 'ALL' || blockCulture === activeFilter);
+        
+        let visibleCardsInBlock = 0;
+        const cards = block.querySelectorAll('.sign-card');
+        
+        cards.forEach(card => {
+            const name = card.querySelector('strong').innerText.toLowerCase();
+            const hint = card.querySelector('.sign-hint').innerText.toLowerCase();
+            const matchesSearch = (name.includes(query) || hint.includes(query));
+            
+            if (matchesCulture && matchesSearch) {
+                card.style.display = 'flex';
+                visibleCardsInBlock++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        if (visibleCardsInBlock > 0) {
+            block.style.display = 'block';
+        } else {
+            block.style.display = 'none';
+        }
+    });
+}
+
+if (signsSearchInput) {
+    signsSearchInput.addEventListener('input', filterSignsGuide);
+}
+
+signsFilterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        signsFilterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filterSignsGuide();
+    });
+});
+
 // Initial checks
 checkBackendHealth();
 render3DGrid();

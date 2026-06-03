@@ -228,7 +228,6 @@
                     </div>
 
                     <!-- Tab 2: Gesture Recorder -->
-                    <!-- Tab 1.5: Signs Reference Guide -->
                     <div class="tab-content" id="signs-tab">
                         <div class="card-header">
                             <h3><i class="fa-solid fa-hand"></i> Signs Reference Guide</h3>
@@ -237,8 +236,23 @@
                             Show these hand shapes to the camera. Hold each pose steady for ~1.5 seconds.
                         </p>
 
+                        <div class="signs-filter-wrapper" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; width: 100%; flex-wrap: wrap;">
+                            <div class="search-input-container" style="position: relative; flex-grow: 1; min-width: 200px;">
+                                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 0.85rem;"></i>
+                                <input type="text" id="signs-search" placeholder="Search signs by name or hint..." class="custom-input" style="padding-left: 2.2rem; width: 100%;">
+                            </div>
+                            <div class="signs-culture-filters" id="signs-culture-filters" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button class="btn btn-secondary btn-sm active" data-filter="ALL">All</button>
+                                <button class="btn btn-secondary btn-sm" data-filter="UNIVERSAL">Universal</button>
+                                <button class="btn btn-secondary btn-sm" data-filter="ASL">ASL</button>
+                                <button class="btn btn-secondary btn-sm" data-filter="ISL">ISL</button>
+                                <button class="btn btn-secondary btn-sm" data-filter="BSL">BSL</button>
+                                <button class="btn btn-secondary btn-sm" data-filter="LSE">LSE</button>
+                            </div>
+                        </div>
+
                         <!-- Universal Signs -->
-                        <div class="signs-culture-block">
+                        <div class="signs-culture-block" data-culture="UNIVERSAL">
                             <h4 class="signs-culture-title">⚡ Universal Signs</h4>
                             <div class="signs-grid">
                                 <div class="sign-card"><span class="sign-emoji">👋</span><strong>Hello / Palm</strong><span class="sign-hint">All 5 fingers open</span></div>
@@ -261,7 +275,7 @@
                         </div>
 
                         <!-- ASL Signs -->
-                        <div class="signs-culture-block">
+                        <div class="signs-culture-block" data-culture="ASL">
                             <h4 class="signs-culture-title">🇺🇸 ASL — American Sign Language</h4>
                             <div class="signs-grid">
                                 <div class="sign-card"><span class="sign-emoji">👋</span><strong>Hello</strong><span class="sign-hint">Open palm wave</span></div>
@@ -274,7 +288,7 @@
                         </div>
 
                         <!-- ISL Signs -->
-                        <div class="signs-culture-block">
+                        <div class="signs-culture-block" data-culture="ISL">
                             <h4 class="signs-culture-title">🇮🇳 ISL — Indian Sign Language</h4>
                             <div class="signs-grid">
                                 <div class="sign-card"><span class="sign-emoji">🙏</span><strong>Namaste</strong><span class="sign-hint">Open palm greeting</span></div>
@@ -287,7 +301,7 @@
                         </div>
 
                         <!-- BSL Signs -->
-                        <div class="signs-culture-block">
+                        <div class="signs-culture-block" data-culture="BSL">
                             <h4 class="signs-culture-title">🇬🇧 BSL — British Sign Language</h4>
                             <div class="signs-grid">
                                 <div class="sign-card"><span class="sign-emoji">☝️</span><strong>Salute</strong><span class="sign-hint">Index finger point</span></div>
@@ -299,7 +313,7 @@
                         </div>
 
                         <!-- LSE Signs -->
-                        <div class="signs-culture-block">
+                        <div class="signs-culture-block" data-culture="LSE">
                             <h4 class="signs-culture-title">🇪🇸 LSE — Spanish Sign Language</h4>
                             <div class="signs-grid">
                                 <div class="sign-card"><span class="sign-emoji">👋</span><strong>Hola</strong><span class="sign-hint">Open palm greeting</span></div>
