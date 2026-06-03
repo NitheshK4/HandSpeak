@@ -345,6 +345,16 @@ def get_training_history():
         except Exception:
             return []
 
+@app.post("/api/clear_training_history")
+def clear_training_history():
+    history_path = "data/training_history.json"
+    try:
+        with open(history_path, "w") as f:
+            json.dump([], f)
+        return {"status": "success", "message": "Training history cleared successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to clear history: {str(e)}")
+
 # Mount frontend files (CSS, JS) so they can be loaded directly from server
 # We mount frontend at root /static
 if os.path.exists("frontend"):

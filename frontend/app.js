@@ -928,7 +928,12 @@ async function fetchTrainingHistory() {
 
 function renderTrainingHistoryTable(history) {
     const tbody = document.getElementById('history-runs-tbody');
+    const clearBtn = document.getElementById('btn-clear-history');
     if (!tbody) return;
+    
+    if (clearBtn) {
+        clearBtn.style.display = (history && history.length > 0) ? 'inline-flex' : 'none';
+    }
     
     if (!history || history.length === 0) {
         tbody.innerHTML = `
@@ -950,6 +955,23 @@ function renderTrainingHistoryTable(history) {
             <td class="rf-text" style="font-weight: 600;">${(run.rf_val_acc * 100).toFixed(1)}%</td>
         </tr>
     `).join('');
+}
+
+// Bind Clear History action
+const btnClearHistory = document.getElementById('btn-clear-history');
+if (btnClearHistory) {
+    btnClearHistory.addEventListener('click', async () => {
+        if (confirm("Are you sure you want to clear all historical training records?")) {
+            try {
+                const response = await fetch(`${API_URL}/api/clear_training_history`, { method: 'POST' });
+                if (response.ok) {
+                    fetchTrainingHistory();
+                }
+            } catch (err) {
+                console.error("Failed to clear training history", err);
+            }
+        }
+    });
 }
 
 function updateMetricsUI(metrics) {

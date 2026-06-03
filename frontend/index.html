@@ -431,15 +431,19 @@
                                     </tbody>
                                 </table>
                             </div>
-                            
-                            <div class="chart-container full-width">
+                        <div class="chart-container full-width">
                                 <h4>Training Loss History (PyTorch GCN vs MLP)</h4>
                                 <canvas id="loss-history-chart"></canvas>
                             </div>
                             
                             <div class="training-history-log-wrapper" style="margin-top: 2rem; margin-bottom: 2rem;">
-                                <h4>Historical Training Runs Log</h4>
-                                <table class="metrics-table" id="history-runs-table">
+                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                     <h4 style="margin-bottom: 0;">Historical Training Runs Log</h4>
+                                     <button id="btn-clear-history" class="btn btn-danger btn-sm" style="display: none;">
+                                         <i class="fa-solid fa-trash-can"></i> Clear History
+                                     </button>
+                                 </div>
+                                 <table class="metrics-table" id="history-runs-table">
                                     <thead>
                                         <tr>
                                             <th>Timestamp</th>
