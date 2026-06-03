@@ -130,7 +130,11 @@
 
                         <!-- Rule-Based classifier card (PRIMARY) -->
                         <div class="model-result-row" style="border: 1.5px solid var(--color-accent); border-radius: 10px; background: rgba(0,242,254,0.04);">
-                            <div class="model-badge rule-color">⚡ Rule</div>
+                            <div class="model-badge rule-color">
+                                ⚡ Rule
+                                <span class="tooltip-icon"><i class="fa-solid fa-circle-info"></i></span>
+                                <span class="tooltip-text">Rule-Based: Classifies gestures based on finger extension state (PIP vs TIP distance). Zero training needed, extremely fast (<1ms).</span>
+                            </div>
                             <div class="model-details">
                                 <div class="model-desc">
                                     <span class="model-prediction rule-text" id="rule-pred">---</span>
@@ -145,7 +149,11 @@
 
                         <!-- GNN prediction results card -->
                         <div class="model-result-row">
-                            <div class="model-badge gnn-color">GNN</div>
+                            <div class="model-badge gnn-color">
+                                GNN
+                                <span class="tooltip-icon"><i class="fa-solid fa-circle-info"></i></span>
+                                <span class="tooltip-text">Graph GCN: PyTorch model that treats landmarks as nodes on the skeleton graph. High structural accuracy.</span>
+                            </div>
                             <div class="model-details">
                                 <div class="model-desc">
                                     <span class="model-prediction" id="gnn-pred">---</span>
@@ -160,7 +168,11 @@
 
                         <!-- MLP prediction results card -->
                         <div class="model-result-row">
-                            <div class="model-badge mlp-color">MLP</div>
+                            <div class="model-badge mlp-color">
+                                MLP
+                                <span class="tooltip-icon"><i class="fa-solid fa-circle-info"></i></span>
+                                <span class="tooltip-text">Multi-Layer Perceptron: PyTorch deep neural network operating on normalized coordinate vectors. Fast and accurate baseline.</span>
+                            </div>
                             <div class="model-details">
                                 <div class="model-desc">
                                     <span class="model-prediction" id="mlp-pred">---</span>
@@ -175,7 +187,11 @@
 
                         <!-- Random Forest prediction results card -->
                         <div class="model-result-row">
-                            <div class="model-badge rf-color">Random Forest</div>
+                            <div class="model-badge rf-color">
+                                RF
+                                <span class="tooltip-icon"><i class="fa-solid fa-circle-info"></i></span>
+                                <span class="tooltip-text">Random Forest: Scikit-learn ensemble classifier built with decision trees. Provides classic ML benchmark.</span>
+                            </div>
                             <div class="model-details">
                                 <div class="model-desc">
                                     <span class="model-prediction" id="rf-pred">---</span>

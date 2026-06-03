@@ -1159,3 +1159,59 @@ body {
     text-transform: uppercase;
 }
 
+/* --- Model Tooltips --- */
+.model-badge {
+    position: relative;
+    cursor: help;
+}
+
+.tooltip-icon {
+    font-size: 0.65rem;
+    opacity: 0.6;
+    margin-left: 3px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    width: 220px;
+    background: rgba(15, 15, 25, 0.98);
+    color: var(--text-primary);
+    text-align: center;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0.65rem 0.85rem;
+    position: absolute;
+    z-index: 100;
+    bottom: 125%; /* Position above badge */
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    font-size: 0.725rem;
+    line-height: 1.4;
+    font-weight: 400;
+    text-transform: none;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+.tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(15, 15, 25, 0.98) transparent transparent transparent;
+}
+
+.model-badge:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(-2px);
+}
+
