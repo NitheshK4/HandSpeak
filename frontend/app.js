@@ -116,6 +116,8 @@ navButtons.forEach(btn => {
         
         if (activeTab === 'metrics-tab') {
             fetchMetrics();
+        } else if (activeTab === 'record-tab') {
+            fetchDatasetStats();
         }
     });
 });
@@ -843,6 +845,7 @@ btnSaveGesture.addEventListener('click', async () => {
     }
     
     showRecordStatus(`Successfully saved ${savedCount}/${recordedFrames.length} frames for '${culture}_${label}'!`, 'success');
+    fetchDatasetStats();
     
     // Clear list
     recordedFrames = [];
@@ -1168,8 +1171,66 @@ signsFilterButtons.forEach(btn => {
     });
 });
 
+// Fetch and render Dataset Stats for the recorder tab
+async function fetchDatasetStats() {
+    const totalEl = document.getElementById('stats-total-samples');
+    const container = document.getElementById('dataset-stats-container');
+    if (!container) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/api/dataset_stats`);
+        if (response.ok) {
+            const data = await response.json();
+            if (totalEl) {
+                totalEl.innerText = `Total Samples: ${data.total_samples}`;
+            }
+            
+            const cultures = data.cultures || {};
+            const keys = Object.keys(cultures);
+            
+            if (keys.length === 0) {
+                container.innerHTML = `<div style="color: var(--text-secondary); font-size: 0.8rem; text-align: center; padding: 1rem 0;">Dataset is currently empty.</div>`;
+                return;
+            }
+            
+            let html = '';
+            keys.forEach(culture => {
+                const labels = cultures[culture];
+                const labelKeys = Object.keys(labels);
+                
+                html += `
+                    <div style="margin-bottom: 0.5rem;">
+                        <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 0.35rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 2px;">${culture}</div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.4rem;">
+                `;
+                
+                labelKeys.forEach(lbl => {
+                    const count = labels[lbl];
+                    html += `
+                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.4rem 0.6rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem;">
+                            <strong style="color: var(--text-primary); font-weight: 500;">${lbl}</strong>
+                            <span class="badge" style="padding: 0.1rem 0.3rem; font-size: 0.65rem; background: rgba(0, 242, 254, 0.1); color: var(--color-gnn); border: none; min-width: 20px; text-align: center;">${count}</span>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+    } catch (err) {
+        console.error("Failed to fetch dataset stats", err);
+        container.innerHTML = `<div style="color: #ff3366; font-size: 0.8rem; text-align: center; padding: 1rem 0;">Error loading stats.</div>`;
+    }
+}
+
 // Initial checks
 checkBackendHealth();
 render3DGrid();
+fetchDatasetStats();
 // Periodically check status (every 10s)
 setInterval(checkBackendHealth, 10000);

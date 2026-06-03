@@ -364,6 +364,17 @@
                                 </a>
                             </div>
                             <div id="record-status-msg" class="status-msg"></div>
+                            
+                            <!-- Dataset Stats Dashboard -->
+                            <div class="dataset-stats-dashboard" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                                <h4 style="font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+                                    <span><i class="fa-solid fa-database"></i> Dataset Composition Overview</span>
+                                    <span style="font-size: 0.8rem; color: var(--color-gnn); font-weight: 600;" id="stats-total-samples">Total Samples: 0</span>
+                                </h4>
+                                <div id="dataset-stats-container" style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; padding-right: 0.25rem;">
+                                    <div class="stats-placeholder" style="color: var(--text-secondary); font-style: italic; font-size: 0.8rem; text-align: center; padding: 1rem 0;">Loading dataset composition...</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

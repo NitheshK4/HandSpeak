@@ -308,6 +308,32 @@ def export_dataset():
         filename="sign_dataset.json"
     )
 
+@app.get("/api/dataset_stats")
+def get_dataset_stats():
+    dataset_path = "data/sign_dataset.json"
+    if not os.path.exists(dataset_path):
+        return {"total_samples": 0, "cultures": {}}
+    with open(dataset_path, "r") as f:
+        try:
+            dataset = json.load(f)
+        except Exception:
+            return {"total_samples": 0, "cultures": {}}
+            
+    stats = {}
+    for sample in dataset:
+        culture = sample.get("culture", "UNIVERSAL").upper()
+        label = sample.get("label", "Unknown")
+        if culture not in stats:
+            stats[culture] = {}
+        if label not in stats[culture]:
+            stats[culture][label] = 0
+        stats[culture][label] += 1
+        
+    return {
+        "total_samples": len(dataset),
+        "cultures": stats
+    }
+
 @app.get("/api/training_history")
 def get_training_history():
     history_path = "data/training_history.json"
