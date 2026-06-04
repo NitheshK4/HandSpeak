@@ -925,23 +925,61 @@ btnRetrain.addEventListener('click', async () => {
 });
 
 function pollTrainingStatus() {
+    // Play sound tick on retraining begin
+    playSound('click');
+    
+    const titleEl = document.getElementById('training-modal-title');
+    const statusEl = document.getElementById('training-modal-status');
+    const detailsEl = document.getElementById('training-modal-details');
+    const progressBar = document.getElementById('training-modal-progress-bar');
+    
     const pollInterval = setInterval(async () => {
         try {
-            const response = await fetch(`${API_URL}/api/metrics`);
+            const response = await fetch(`${API_URL}/api/training_progress`);
             if (response.ok) {
                 const data = await response.json();
-                if (!data.is_training_active) {
+                
+                if (!data.active) {
                     clearInterval(pollInterval);
                     trainingModal.classList.remove('active');
                     setBackendStatus('online', 'Connected to Backend');
+                    
+                    // Trigger sound fanfare
+                    playSound('fanfare');
+                    
                     showToast("Models retrained successfully! Charts and metrics updated.", "success");
                     fetchMetrics(); // Refresh charts with new metrics!
+                    return;
                 }
+                
+                // Active training progress calculation
+                let percent = 0;
+                let phaseText = "Initializing...";
+                let detailText = `Waiting for pipeline to start...`;
+                
+                if (data.model_name === "HandGCN") {
+                    percent = Math.round((data.epoch / data.total_epochs) * 45);
+                    phaseText = "Phase 1/3: Training Graph Neural Network (GNN)";
+                    detailText = `Epoch: ${data.epoch} / ${data.total_epochs} | Loss: ${data.train_loss.toFixed(4)} | Acc: ${(data.train_acc * 100).toFixed(1)}%`;
+                } else if (data.model_name === "HandMLP") {
+                    percent = 45 + Math.round((data.epoch / data.total_epochs) * 45);
+                    phaseText = "Phase 2/3: Training Dense Neural Network (MLP)";
+                    detailText = `Epoch: ${data.epoch} / ${data.total_epochs} | Loss: ${data.train_loss.toFixed(4)} | Acc: ${(data.train_acc * 100).toFixed(1)}%`;
+                } else if (data.model_name === "Random Forest") {
+                    percent = 95;
+                    phaseText = "Phase 3/3: Fitting Random Forest Classifier";
+                    detailText = "Optimizing decision tree splits...";
+                }
+                
+                if (titleEl) titleEl.innerText = "Retraining AI Models";
+                if (statusEl) statusEl.innerText = phaseText;
+                if (detailsEl) detailsEl.innerText = detailText;
+                if (progressBar) progressBar.style.width = `${percent}%`;
             }
         } catch (err) {
             console.error("Error polling metrics status", err);
         }
-    }, 2000);
+    }, 800);
 }
 
 async function fetchMetrics() {

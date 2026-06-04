@@ -402,6 +402,20 @@ def delete_gesture_class(data: DeleteGestureClassData):
         "total_remaining": len(filtered_dataset)
     }
 
+@app.get("/api/training_progress")
+def get_training_progress():
+    progress_path = "data/training_progress.json"
+    if not os.path.exists(progress_path):
+        return {"active": is_training_active, "model_name": "None", "epoch": 0, "total_epochs": 100, "train_loss": 0.0, "val_loss": 0.0, "train_acc": 0.0, "val_acc": 0.0}
+        
+    try:
+        with open(progress_path, "r") as f:
+            progress = json.load(f)
+            progress["active"] = is_training_active
+            return progress
+    except Exception:
+        return {"active": is_training_active, "model_name": "None", "epoch": 0, "total_epochs": 100, "train_loss": 0.0, "val_loss": 0.0, "train_acc": 0.0, "val_acc": 0.0}
+
 # Mount frontend files (CSS, JS) so they can be loaded directly from server
 # We mount frontend at root /static
 if os.path.exists("frontend"):

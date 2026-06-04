@@ -155,6 +155,20 @@ def train_pytorch_model(model, train_loader, val_loader, num_classes, epochs=60,
         history["train_acc"].append(float(train_acc))
         history["val_acc"].append(float(val_acc))
         
+        try:
+            with open("data/training_progress.json", "w") as pf:
+                json.dump({
+                    "model_name": model.__class__.__name__,
+                    "epoch": epoch + 1,
+                    "total_epochs": epochs,
+                    "train_loss": float(train_loss),
+                    "val_loss": float(val_loss),
+                    "train_acc": float(train_acc),
+                    "val_acc": float(val_acc)
+                }, pf)
+        except Exception:
+            pass
+        
         if (epoch + 1) % 5 == 0 or epoch == epochs - 1:
             print(f"Epoch {epoch+1:02d}/{epochs:02d} | "
                   f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc*100:.2f}% | "
@@ -218,6 +232,20 @@ def run_training(epochs=100, lr=0.001):
     mlp_inf_latency = (time.time() - start_inf) / 100 * 1000 # ms per sample
     
     # 3. Train Random Forest (Scikit-Learn)
+    try:
+        with open("data/training_progress.json", "w") as pf:
+            json.dump({
+                "model_name": "Random Forest",
+                "epoch": 1,
+                "total_epochs": 1,
+                "train_loss": 0.0,
+                "val_loss": 0.0,
+                "train_acc": 0.0,
+                "val_acc": 0.0
+            }, pf)
+    except Exception:
+        pass
+
     print("\n--- Training Random Forest (General ML) ---")
     # Flatten inputs for Random Forest
     X_train_flat = X_train.reshape(X_train.shape[0], -1)
@@ -296,6 +324,13 @@ def run_training(epochs=100, lr=0.001):
         print("Training run successfully logged to history.")
     except Exception as e:
         print(f"Error logging to history: {e}")
+    finally:
+        # Cleanup progress file
+        if os.path.exists("data/training_progress.json"):
+            try:
+                os.remove("data/training_progress.json")
+            except Exception:
+                pass
 
 if __name__ == "__main__":
     run_training()

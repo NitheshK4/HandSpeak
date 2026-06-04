@@ -553,12 +553,15 @@
 
     <!-- Re-training Loader Modal -->
     <div class="modal-overlay" id="training-modal">
-        <div class="modal-card">
+        <div class="modal-card" style="text-align: center;">
             <div class="spinner"></div>
-            <h3>Training in Progress</h3>
-            <p>PyTorch GCN, MLP, and Random Forest models are currently being trained on the landmark dataset. This will take a few seconds...</p>
+            <h3 id="training-modal-title">Training in Progress</h3>
+            <p id="training-modal-status">Initializing training parameters...</p>
+            <div id="training-modal-details" style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                Epoch: 0 / -- | Loss: --
+            </div>
             <div class="modal-progress-track">
-                <div class="modal-progress-bar" style="width: 100%"></div>
+                <div class="modal-progress-bar" id="training-modal-progress-bar" style="width: 0%"></div>
             </div>
         </div>
     </div>
