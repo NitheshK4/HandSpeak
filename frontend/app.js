@@ -87,6 +87,7 @@ const btnSaveGesture = document.getElementById('btn-save-gesture');
 const btnClearRecorded = document.getElementById('btn-clear-recorded');
 const recordedCountEl = document.getElementById('recorded-count');
 const recordStatusMsg = document.getElementById('record-status-msg');
+const captureThumbnailsGallery = document.getElementById('capture-thumbnails-gallery');
 
 // Benchmarks Elements
 const btnRetrain = document.getElementById('btn-retrain');
@@ -848,6 +849,78 @@ btnCaptureFrame.addEventListener('click', () => {
     
     showRecordStatus(`Frame ${recordedFrames.length} captured successfully!`, 'success');
 
+    // Generate visual thumbnail of the frame with hand overlay
+    if (captureThumbnailsGallery) {
+        try {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 80;
+            tempCanvas.height = 60;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // Draw current webcam frame to the canvas
+            tempCtx.drawImage(videoElement, 0, 0, tempCanvas.width, tempCanvas.height);
+            
+            // Draw hand skeleton on top of the thumbnail
+            if (currentLandmarks) {
+                tempCtx.strokeStyle = '#00f2fe';
+                tempCtx.lineWidth = 1.5;
+                tempCtx.fillStyle = '#bf55ec';
+                
+                const connections = [
+                    [0, 1], [1, 2], [2, 3], [3, 4], // Thumb
+                    [0, 5], [5, 6], [6, 7], [7, 8], // Index
+                    [9, 10], [10, 11], [11, 12],     // Middle
+                    [13, 14], [14, 15], [15, 16],    // Ring
+                    [0, 17], [17, 18], [18, 19], [19, 20], // Pinky
+                    [5, 9], [9, 13], [13, 17] // Palm base
+                ];
+                
+                connections.forEach(([i, j]) => {
+                    const ptA = currentLandmarks[i];
+                    const ptB = currentLandmarks[j];
+                    if (ptA && ptB) {
+                        tempCtx.beginPath();
+                        tempCtx.moveTo(ptA.x * tempCanvas.width, ptA.y * tempCanvas.height);
+                        tempCtx.lineTo(ptB.x * tempCanvas.width, ptB.y * tempCanvas.height);
+                        tempCtx.stroke();
+                    }
+                });
+                
+                currentLandmarks.forEach(pt => {
+                    tempCtx.beginPath();
+                    tempCtx.arc(pt.x * tempCanvas.width, pt.y * tempCanvas.height, 2, 0, 2 * Math.PI);
+                    tempCtx.fill();
+                });
+            }
+            
+            const imgData = tempCanvas.toDataURL('image/jpeg');
+            const imgEl = document.createElement('img');
+            imgEl.src = imgData;
+            imgEl.style.width = '80px';
+            imgEl.style.height = '60px';
+            imgEl.style.borderRadius = '8px';
+            imgEl.style.border = '2px solid var(--border-color)';
+            imgEl.style.objectFit = 'cover';
+            imgEl.style.boxShadow = '0 4px 10px rgba(0,0,0,0.3)';
+            imgEl.style.transition = 'all 0.25s ease';
+            imgEl.title = `Frame ${recordedFrames.length}`;
+            
+            imgEl.addEventListener('mouseenter', () => {
+                imgEl.style.transform = 'scale(1.1)';
+                imgEl.style.borderColor = 'var(--color-gnn)';
+            });
+            imgEl.style.cursor = 'pointer';
+            imgEl.addEventListener('mouseleave', () => {
+                imgEl.style.transform = 'scale(1)';
+                imgEl.style.borderColor = 'var(--border-color)';
+            });
+            
+            captureThumbnailsGallery.appendChild(imgEl);
+            captureThumbnailsGallery.scrollLeft = captureThumbnailsGallery.scrollWidth;
+        } catch (err) {
+            console.warn("Failed to generate thumbnail frame preview", err);
+        }
+    }
 });
 
 btnClearRecorded.addEventListener('click', () => {
@@ -856,6 +929,9 @@ btnClearRecorded.addEventListener('click', () => {
     btnSaveGesture.disabled = true;
     btnClearRecorded.style.display = 'none';
     showRecordStatus('Recording reset.', 'success');
+    if (captureThumbnailsGallery) {
+        captureThumbnailsGallery.innerHTML = '';
+    }
 });
 
 btnSaveGesture.addEventListener('click', async () => {
@@ -897,6 +973,9 @@ btnSaveGesture.addEventListener('click', async () => {
     recordedCountEl.innerText = '0';
     btnClearRecorded.style.display = 'none';
     btnCaptureFrame.disabled = false;
+    if (captureThumbnailsGallery) {
+        captureThumbnailsGallery.innerHTML = '';
+    }
 });
 
 function showRecordStatus(msg, type) {
