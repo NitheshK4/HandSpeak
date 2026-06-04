@@ -460,6 +460,9 @@ function speakWord(text) {
 
 // edited on 04/06/26 by Nithesh kumar
 function triggerSpeechAndSentence(word, culture, confidence, model) {
+    // Play success audio feedback
+    playSound('success');
+
     // 1. Text-to-Speech
     if (isSpeechEnabled) {
         speakWord(word);
@@ -529,6 +532,7 @@ btnSpeakAll.addEventListener('click', () => {
 
 btnCopySentence.addEventListener('click', () => {
     if (sentenceWords.length > 0) {
+        playSound('click');
         const text = sentenceWords.join(' ');
         navigator.clipboard.writeText(text).then(() => {
             showToast("Sentence copied to clipboard!", "success");
@@ -547,9 +551,10 @@ btnCopySentence.addEventListener('click', () => {
         });
     }
 });
-// edited by Nithesh kumar on 04/06/26
+
 btnBackspace.addEventListener('click', () => {
     if (sentenceWords.length > 0) {
+        playSound('click');
         const popped = sentenceWords.pop();
         if (popped) deletedWords.push(popped);
         triggerSentenceUpdate();
@@ -557,6 +562,7 @@ btnBackspace.addEventListener('click', () => {
 });
 
 btnClearSentence.addEventListener('click', () => {
+    playSound('click');
     sentenceWords = [];
     deletedWords = [];
     triggerSentenceUpdate();
@@ -1388,6 +1394,7 @@ if (confSlider && confValueEl) {
 if (btnUndo) {
     btnUndo.addEventListener('click', () => {
         if (deletedWords.length > 0) {
+            playSound('click');
             const recovered = deletedWords.pop();
             if (recovered) {
                 sentenceWords.push(recovered);
@@ -1431,10 +1438,10 @@ if (btnExportHistory) {
     });
 }
 
-// BIND DOWNLOAD SENTENCE
 if (btnDownloadSentence) {
     btnDownloadSentence.addEventListener('click', () => {
         if (sentenceWords.length > 0) {
+            playSound('click');
             const text = sentenceWords.join(' ');
             const activeCulture = globalCultureSelect.value;
             const timestamp = new Date().toLocaleString();
@@ -1490,4 +1497,68 @@ const savedTheme = localStorage.getItem('handspeak-theme');
 if (savedTheme) {
     const activeDot = document.querySelector(`.theme-dot[data-theme="${savedTheme}"]`);
     if (activeDot) activeDot.click();
+}
+
+// Web Audio API Synthesizer
+let audioCtx = null;
+
+function initAudio() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+function playSound(type) {
+    try {
+        initAudio();
+        if (!audioCtx) return;
+        
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        
+        const now = audioCtx.currentTime;
+        
+        if (type === 'success') {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, now);
+            osc.frequency.setValueAtTime(659.25, now + 0.08);
+            gain.gain.setValueAtTime(0.08, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.35);
+        } else if (type === 'click') {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(800, now);
+            osc.frequency.exponentialRampToValueAtTime(150, now + 0.05);
+            gain.gain.setValueAtTime(0.05, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.05);
+        } else if (type === 'fanfare') {
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, idx) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+                gain.gain.setValueAtTime(0.06, now + idx * 0.12);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.4);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now + idx * 0.12);
+                osc.stop(now + idx * 0.12 + 0.4);
+            });
+        }
+    } catch (e) {
+        console.warn("Audio Context failed to play sound", e);
+    }
 }
