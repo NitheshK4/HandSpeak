@@ -72,9 +72,9 @@ const toggleSpeechBtn = document.getElementById('toggle-speech');
 const sentenceTextEl = document.getElementById('sentence-text');
 const btnSpeakAll = document.getElementById('btn-speak-all');
 const btnCopySentence = document.getElementById('btn-copy-sentence');
-// edited on 04/06/26 ny Nithesh kumar
 const btnBackspace = document.getElementById('btn-backspace');
 const btnUndo = document.getElementById('btn-undo');
+const btnDownloadSentence = document.getElementById('btn-download-sentence');
 const btnClearSentence = document.getElementById('btn-clear-sentence');
 const historyListEl = document.getElementById('history-list');
 const btnExportHistory = document.getElementById('btn-export-history');
@@ -484,6 +484,7 @@ function triggerSentenceUpdate() {
         btnCopySentence.disabled = true;
         btnBackspace.disabled = true;
         btnClearSentence.disabled = true;
+        if (btnDownloadSentence) btnDownloadSentence.disabled = true;
     } else {
         sentenceTextEl.innerHTML = '';
         sentenceWords.forEach(w => {
@@ -504,6 +505,7 @@ function triggerSentenceUpdate() {
         btnCopySentence.disabled = false;
         btnBackspace.disabled = false;
         btnClearSentence.disabled = false;
+        if (btnDownloadSentence) btnDownloadSentence.disabled = false;
     }
     
     // Update Undo button state
@@ -1425,6 +1427,39 @@ if (btnExportHistory) {
         } catch (err) {
             console.error("CSV export failed", err);
             showToast("Failed to export historical runs.", "error");
+        }
+    });
+}
+
+// BIND DOWNLOAD SENTENCE
+if (btnDownloadSentence) {
+    btnDownloadSentence.addEventListener('click', () => {
+        if (sentenceWords.length > 0) {
+            const text = sentenceWords.join(' ');
+            const activeCulture = globalCultureSelect.value;
+            const timestamp = new Date().toLocaleString();
+            
+            const fileContent = `=========================================
+HandSpeak Translation Log
+=========================================
+Date/Time: ${timestamp}
+Active Culture: ${activeCulture}
+Sentence:
+
+${text}
+
+=========================================
+Thank you for using HandSpeak!
+`;
+            const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `handspeak_sentence_${new Date().toISOString().split('T')[0]}.txt`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("Sentence transcript downloaded!", "success");
         }
     });
 }
