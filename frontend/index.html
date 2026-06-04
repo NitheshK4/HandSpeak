@@ -40,6 +40,9 @@
                 <button class="nav-btn" data-target="record-tab">
                     <i class="fa-solid fa-circle-dot"></i> Gesture Recorder
                 </button>
+                <button class="nav-btn" data-target="practice-tab">
+                    <i class="fa-solid fa-graduation-cap"></i> Practice Room
+                </button>
                 <button class="nav-btn" data-target="metrics-tab">
                     <i class="fa-solid fa-chart-line"></i> Model Benchmarks
                 </button>
@@ -431,6 +434,36 @@
                                 </h4>
                                 <div id="dataset-stats-container" style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; padding-right: 0.25rem;">
                                     <div class="stats-placeholder" style="color: var(--text-secondary); font-style: italic; font-size: 0.8rem; text-align: center; padding: 1rem 0;">Loading dataset composition...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Practice Room (Quiz) -->
+                    <div class="tab-content" id="practice-tab">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-graduation-cap"></i> Practice Room</h3>
+                            <div style="font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--color-success);" id="practice-score">Score: 0</div>
+                        </div>
+                        <div class="practice-container" style="display: flex; flex-direction: column; gap: 1.5rem; text-align: center; padding: 2rem 1.5rem; background: rgba(255, 255, 255, 0.015); border: 1px solid var(--border-color); border-radius: 16px; align-items: center; justify-content: center; min-height: 280px; position: relative;">
+                            <canvas id="confetti-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; border-radius: 16px;"></canvas>
+                            
+                            <div class="practice-quiz" style="z-index: 1;">
+                                <h4 style="color: var(--text-secondary); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 0.5rem;">Can you perform this sign?</h4>
+                                <div id="practice-target-word" style="font-family: 'Space Grotesk', sans-serif; font-size: 3rem; font-weight: 800; color: var(--color-gnn); margin-bottom: 1rem; text-shadow: 0 0 15px rgba(0, 242, 254, 0.3);"> Namaste </div>
+                                <div id="practice-hint" style="font-size: 0.85rem; color: var(--text-secondary); font-style: italic; margin-bottom: 1.5rem;">Culture context: ISL</div>
+                                
+                                <div class="practice-feedback" id="practice-feedback-msg" style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; height: 30px; color: var(--text-secondary);">
+                                    Position hand to start...
+                                </div>
+                                
+                                <div class="practice-actions" style="display: flex; justify-content: center; gap: 0.5rem; align-items: center;">
+                                    <button id="btn-skip-practice" class="btn btn-secondary">
+                                        <i class="fa-solid fa-forward"></i> Skip Word
+                                    </button>
+                                    <button id="btn-reset-score" class="btn btn-danger btn-sm" style="padding: 0.4rem 0.75rem; font-size: 0.75rem;">
+                                        Reset Game
+                                    </button>
                                 </div>
                             </div>
                         </div>

@@ -124,6 +124,8 @@ navButtons.forEach(btn => {
             fetchMetrics();
         } else if (activeTab === 'record-tab') {
             fetchDatasetStats();
+        } else if (activeTab === 'practice-tab') {
+            loadNextPracticeWord();
         }
     });
 });
@@ -229,8 +231,8 @@ function onHandResults(results) {
         // Render 3D rotatable skeleton
         render3DRotator(landmarks);
         
-        // Process prediction if on live-tab
-        if (activeTab === 'live-tab') {
+        // Process prediction if on live-tab or practice-tab
+        if (activeTab === 'live-tab' || activeTab === 'practice-tab') {
             const aspect = (videoElement.videoWidth && videoElement.videoHeight) ? (videoElement.videoWidth / videoElement.videoHeight) : (640 / 480);
             const payload = landmarks.map(pt => [pt.x * aspect, pt.y, pt.z]);
             sendPrediction(payload);
@@ -244,10 +246,15 @@ function onHandResults(results) {
         // Draw standard empty 3D rotator grid
         render3DGrid();
         
-        if (activeTab === 'live-tab') {
+        if (activeTab === 'live-tab' || activeTab === 'practice-tab') {
             clearPredictionUI();
             predictionHeldCount = 0;
             lastTopPrediction = "";
+            const feedbackEl = document.getElementById('practice-feedback-msg');
+            if (activeTab === 'practice-tab' && feedbackEl && !isQuizCorrectLock) {
+                feedbackEl.innerText = "Position hand to start...";
+                feedbackEl.style.color = "var(--text-secondary)";
+            }
         }
     }
 }
@@ -405,6 +412,10 @@ function updatePredictionUI(preds) {
         if (subtextEl) {
             subtextEl.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Live Sign Detection (Ensemble Voting)`;
         }
+    }
+    
+    if (activeTab === 'practice-tab') {
+        checkPracticeMatch(ensembleLabel, ensembleConfidence);
     }
     
     // Update Rule UI cards
@@ -836,6 +847,7 @@ btnCaptureFrame.addEventListener('click', () => {
     btnClearRecorded.style.display = 'inline-flex';
     
     showRecordStatus(`Frame ${recordedFrames.length} captured successfully!`, 'success');
+
 });
 
 btnClearRecorded.addEventListener('click', () => {
@@ -1591,18 +1603,6 @@ function playSound(type) {
             gain.connect(audioCtx.destination);
             osc.start(now);
             osc.stop(now + 0.35);
-        } else if (type === 'click') {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(800, now);
-            osc.frequency.exponentialRampToValueAtTime(150, now + 0.05);
-            gain.gain.setValueAtTime(0.05, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(now);
-            osc.stop(now + 0.05);
         } else if (type === 'fanfare') {
             const notes = [523.25, 659.25, 783.99, 1046.50];
             notes.forEach((freq, idx) => {
@@ -1622,3 +1622,190 @@ function playSound(type) {
         console.warn("Audio Context failed to play sound", e);
     }
 }
+
+// --- PRACTICE ROOM (QUIZ GAME) & CONFETTI ENGINE ---
+const PRACTICE_WORDS = [
+    { word: "Hello", culture: "ASL", hint: "Show an open palm waving" },
+    { word: "Namaste", culture: "ISL", hint: "Show an open palm (greeting)" },
+    { word: "Si", culture: "LSE", hint: "Show a closed fist (nod Yes)" },
+    { word: "Vijay", culture: "ISL", hint: "Form a 'V' shape with index/middle fingers" },
+    { word: "Gracias", culture: "LSE", hint: "Extend Thumb, Index, and Pinky (Thank You)" },
+    { word: "Perfect", culture: "BSL", hint: "Form a circle with thumb and index (OK sign)" },
+    { word: "Awesome", culture: "BSL", hint: "Point your thumb straight up" },
+    { word: "Peace", culture: "UNIVERSAL", hint: "Extend index and middle fingers" },
+    { word: "Rock", culture: "UNIVERSAL", hint: "Extend index and pinky (devil horns)" },
+    { word: "Gun", culture: "UNIVERSAL", hint: "Point index forward and thumb up" }
+];
+let practiceScore = 0;
+let currentPracticeIndex = -1; // Start at -1 so first call increments to 0
+let isQuizCorrectLock = false;
+
+// Practice Room DOM elements
+const practiceTargetWordEl = document.getElementById('practice-target-word');
+const practiceHintEl = document.getElementById('practice-hint');
+const practiceFeedbackMsgEl = document.getElementById('practice-feedback-msg');
+const practiceScoreEl = document.getElementById('practice-score');
+const btnSkipPractice = document.getElementById('btn-skip-practice');
+const btnResetScore = document.getElementById('btn-reset-score');
+
+function loadNextPracticeWord() {
+    if (PRACTICE_WORDS.length === 0) return;
+    currentPracticeIndex = (currentPracticeIndex + 1) % PRACTICE_WORDS.length;
+    isQuizCorrectLock = false;
+    
+    const target = PRACTICE_WORDS[currentPracticeIndex];
+    if (practiceTargetWordEl) {
+        practiceTargetWordEl.innerText = target.word;
+    }
+    if (practiceHintEl) {
+        practiceHintEl.innerText = `Hint: ${target.hint} (${target.culture})`;
+    }
+    if (practiceFeedbackMsgEl) {
+        practiceFeedbackMsgEl.innerText = "Position hand to start...";
+        practiceFeedbackMsgEl.style.color = "var(--text-secondary)";
+    }
+}
+
+function checkPracticeMatch(label, confidence) {
+    if (isQuizCorrectLock) return;
+    if (!label || label === "Analyzing Pose...") return;
+    
+    const currentTarget = PRACTICE_WORDS[currentPracticeIndex];
+    if (!currentTarget) return;
+    
+    if (label.toLowerCase() === currentTarget.word.toLowerCase()) {
+        isQuizCorrectLock = true;
+        
+        playSound('success');
+        triggerConfetti();
+        
+        practiceScore++;
+        if (practiceScoreEl) {
+            practiceScoreEl.innerText = `Score: ${practiceScore}`;
+        }
+        
+        if (practiceFeedbackMsgEl) {
+            practiceFeedbackMsgEl.innerText = "Correct! Awesome job! 🎉";
+            practiceFeedbackMsgEl.style.color = "var(--color-success)";
+        }
+        
+        setTimeout(() => {
+            loadNextPracticeWord();
+        }, 2500);
+    } else {
+        if (practiceFeedbackMsgEl) {
+            practiceFeedbackMsgEl.innerText = `Detected: ${label} (Confidence: ${Math.round(confidence * 100)}%)`;
+            practiceFeedbackMsgEl.style.color = "var(--color-gnn)";
+        }
+    }
+}
+
+if (btnSkipPractice) {
+    btnSkipPractice.addEventListener('click', () => {
+        playSound('click');
+        loadNextPracticeWord();
+    });
+}
+
+if (btnResetScore) {
+    btnResetScore.addEventListener('click', () => {
+        playSound('click');
+        practiceScore = 0;
+        if (practiceScoreEl) {
+            practiceScoreEl.innerText = `Score: 0`;
+        }
+        currentPracticeIndex = -1;
+        loadNextPracticeWord();
+    });
+}
+
+// Confetti Particle Physics Canvas Engine
+let confettiAnimationId = null;
+const confettiCanvas = document.getElementById('confetti-canvas');
+let confettiCtx = null;
+let confettiParticles = [];
+
+function initConfettiCanvas() {
+    if (!confettiCanvas) return;
+    confettiCtx = confettiCanvas.getContext('2d');
+    const rect = confettiCanvas.getBoundingClientRect();
+    confettiCanvas.width = rect.width || 400;
+    confettiCanvas.height = rect.height || 300;
+}
+
+class ConfettiParticle {
+    constructor(canvasWidth, canvasHeight) {
+        this.x = canvasWidth / 2;
+        this.y = canvasHeight / 2;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 6 + 3;
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed - (Math.random() * 2 + 1); // Slight upward blast
+        this.radius = Math.random() * 3 + 3;
+        this.color = `hsl(${Math.random() * 360}, 95%, 65%)`;
+        this.alpha = 1;
+        this.gravity = 0.12;
+        this.drag = 0.97;
+        this.rotation = Math.random() * 360;
+        this.rotationSpeed = (Math.random() - 0.5) * 8;
+    }
+    
+    update() {
+        this.vx *= this.drag;
+        this.vy *= this.drag;
+        this.vy += this.gravity;
+        this.x += this.vx;
+        this.y += this.vy;
+        this.rotation += this.rotationSpeed;
+        this.alpha -= 0.012;
+    }
+    
+    draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation * Math.PI / 180);
+        ctx.globalAlpha = this.alpha;
+        ctx.fillStyle = this.color;
+        ctx.fillRect(-this.radius, -this.radius, this.radius * 2, this.radius * 2);
+        ctx.restore();
+    }
+}
+
+function triggerConfetti() {
+    if (!confettiCanvas) return;
+    initConfettiCanvas();
+    confettiParticles = [];
+    for (let i = 0; i < 80; i++) {
+        confettiParticles.push(new ConfettiParticle(confettiCanvas.width, confettiCanvas.height));
+    }
+    if (confettiAnimationId) cancelAnimationFrame(confettiAnimationId);
+    animateConfetti();
+}
+
+function animateConfetti() {
+    if (!confettiCtx || !confettiCanvas) return;
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    
+    let alive = false;
+    for (let i = 0; i < confettiParticles.length; i++) {
+        const p = confettiParticles[i];
+        p.update();
+        if (p.alpha > 0) {
+            p.draw(confettiCtx);
+            alive = true;
+        }
+    }
+    
+    if (alive && activeTab === 'practice-tab') {
+        confettiAnimationId = requestAnimationFrame(animateConfetti);
+    } else {
+        confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    }
+}
+
+// Listen for window resize to adjust confetti canvas bounds
+window.addEventListener('resize', () => {
+    if (activeTab === 'practice-tab') {
+        initConfettiCanvas();
+    }
+});
