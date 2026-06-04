@@ -318,63 +318,80 @@ async function sendPrediction(landmarksPayload) {
 function updatePredictionUI(preds) {
     const selectedCulture = globalCultureSelect.value;
     
-    let topClass = null;
-    let topConfidence = 0;
-    let topCulture = null;
-    let topLabel = null;
-    let bestModel = 'rule';
-    
-    // Evaluate Rule, GNN, MLP and Random Forest predictions - prioritize Rule
     const models = ['rule', 'gnn', 'mlp', 'rf'];
-    let candidates = [];
+    
+    // ── Ensemble Voting Algorithm ──
+    const voteMap = {};
+    const modelWeights = {
+        rule: 0.95,
+        gnn: 0.85,
+        mlp: 0.88,
+        rf: 0.78
+    };
     
     models.forEach(m => {
         if (preds[m]) {
             const pred = preds[m];
             if (selectedCulture === 'ALL' || pred.culture === selectedCulture) {
-                candidates.push({
-                    model: m,
-                    class: pred.class,
-                    confidence: pred.confidence,
-                    culture: pred.culture,
-                    label: pred.label
-                });
+                const label = pred.label;
+                if (label && label !== '---') {
+                    if (!voteMap[label]) {
+                        voteMap[label] = {
+                            label: label,
+                            culture: pred.culture,
+                            weightedScore: 0.0,
+                            confidenceSum: 0.0,
+                            count: 0,
+                            voters: []
+                        };
+                    }
+                    voteMap[label].weightedScore += modelWeights[m] * pred.confidence;
+                    voteMap[label].confidenceSum += pred.confidence;
+                    voteMap[label].count += 1;
+                    voteMap[label].voters.push(m.toUpperCase());
+                }
             }
         }
     });
     
-    // Sort candidates: prioritize rule, then confidence
-    candidates.sort((a, b) => {
-        if (a.model === 'rule' && b.model !== 'rule') return -1;
-        if (b.model === 'rule' && a.model !== 'rule') return 1;
-        return b.confidence - a.confidence;
+    let ensembleLabel = "Analyzing Pose...";
+    let ensembleConfidence = 0.0;
+    let ensembleCulture = "---";
+    let maxWeightedScore = 0.0;
+    let ensembleVoters = [];
+    
+    Object.keys(voteMap).forEach(lbl => {
+        const candidate = voteMap[lbl];
+        if (candidate.weightedScore > maxWeightedScore) {
+            maxWeightedScore = candidate.weightedScore;
+            ensembleLabel = candidate.label;
+            ensembleCulture = candidate.culture;
+            ensembleConfidence = candidate.confidenceSum / candidate.count;
+            ensembleVoters = candidate.voters;
+        }
     });
     
-    if (candidates.length > 0) {
-        const top = candidates[0];
-        topClass = top.class;
-        topConfidence = top.confidence;
-        topCulture = top.culture;
-        topLabel = top.label;
-        bestModel = top.model;
-    }
-    
-    // Render top consensus prediction
-        if (topConfidence >= minConfidenceThreshold && topLabel) {
-        topPredictionText.innerText = topLabel;
-        topCultureBadge.innerText = topCulture;
+    // Render top consensus prediction using Ensemble
+    if (ensembleConfidence >= minConfidenceThreshold && ensembleLabel !== "Analyzing Pose...") {
+        topPredictionText.innerText = ensembleLabel;
         topCultureBadge.style.display = 'inline-block';
-        topConfidenceBadge.innerText = `${Math.round(topConfidence * 100)}% Match`;
+        topCultureBadge.innerText = ensembleCulture;
         topConfidenceBadge.style.display = 'inline-block';
+        topConfidenceBadge.innerText = `${Math.round(ensembleConfidence * 100)}% Ensemble Match`;
+        
+        const subtextEl = document.querySelector('.prediction-highlight .label');
+        if (subtextEl) {
+            subtextEl.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Live Sign Detection (Consensus: ${ensembleVoters.join(' + ')})`;
+        }
         
         // --- STABILIZE POSE AND TRIGGER TTS / SENTENCE BUILDER ---
-        if (topLabel === lastTopPrediction) {
+        if (ensembleLabel === lastTopPrediction) {
             predictionHeldCount++;
             if (predictionHeldCount === HOLD_THRESHOLD) {
-                triggerSpeechAndSentence(topLabel, topCulture, topConfidence, bestModel);
+                triggerSpeechAndSentence(ensembleLabel, ensembleCulture, ensembleConfidence, `Ensemble (${ensembleVoters.join('+')})`);
             }
         } else {
-            lastTopPrediction = topLabel;
+            lastTopPrediction = ensembleLabel;
             predictionHeldCount = 0;
         }
     } else {
@@ -383,6 +400,11 @@ function updatePredictionUI(preds) {
         topConfidenceBadge.style.display = 'none';
         predictionHeldCount = 0;
         lastTopPrediction = "";
+        
+        const subtextEl = document.querySelector('.prediction-highlight .label');
+        if (subtextEl) {
+            subtextEl.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Live Sign Detection (Ensemble Voting)`;
+        }
     }
     
     // Update Rule UI cards
