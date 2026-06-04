@@ -1273,9 +1273,14 @@ async function fetchDatasetStats() {
                 labelKeys.forEach(lbl => {
                     const count = labels[lbl];
                     html += `
-                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.4rem 0.6rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem;">
-                            <strong style="color: var(--text-primary); font-weight: 500;">${lbl}</strong>
-                            <span class="badge" style="padding: 0.1rem 0.3rem; font-size: 0.65rem; background: rgba(0, 242, 254, 0.1); color: var(--color-gnn); border: none; min-width: 20px; text-align: center;">${count}</span>
+                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.4rem 0.6rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; gap: 0.5rem;">
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <strong style="color: var(--text-primary); font-weight: 500;">${lbl}</strong>
+                                <span style="font-size: 0.65rem; color: var(--text-secondary);">${count} samples</span>
+                            </div>
+                            <button class="btn-delete-class btn btn-danger btn-sm" data-class="${culture}_${lbl}" style="padding: 0.2rem 0.4rem; font-size: 0.65rem; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; height: 20px; width: 20px; margin: 0; background: rgba(255, 51, 102, 0.1); border: 1px solid rgba(255, 51, 102, 0.2); color: #ff3366;" title="Delete this class">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
                         </div>
                     `;
                 });
@@ -1287,7 +1292,35 @@ async function fetchDatasetStats() {
             });
             
             container.innerHTML = html;
+
+            // Bind click handlers to delete buttons
+            container.querySelectorAll('.btn-delete-class').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const className = btn.getAttribute('data-class');
+                    if (confirm(`Are you sure you want to delete all recorded samples for gesture '${className}'? This cannot be undone.`)) {
+                        try {
+                            const response = await fetch(`${API_URL}/api/delete_gesture_class`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ class_name: className })
+                            });
+                            if (response.ok) {
+                                const res = await response.json();
+                                showToast(res.message, "success");
+                                fetchDatasetStats();
+                            } else {
+                                showToast("Failed to delete gesture class.", "error");
+                            }
+                        } catch (err) {
+                            console.error("Delete request failed", err);
+                            showToast("Failed to delete due to network error.", "error");
+                        }
+                    }
+                });
+            });
         }
+
     } catch (err) {
         console.error("Failed to fetch dataset stats", err);
         container.innerHTML = `<div style="color: #ff3366; font-size: 0.8rem; text-align: center; padding: 1rem 0;">Error loading stats.</div>`;

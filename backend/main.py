@@ -359,10 +359,54 @@ def clear_training_history():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to clear history: {str(e)}")
 
+class DeleteGestureClassData(BaseModel):
+    class_name: str
+
+@app.post("/api/delete_gesture_class")
+def delete_gesture_class(data: DeleteGestureClassData):
+    dataset_path = "data/sign_dataset.json"
+    if not os.path.exists(dataset_path):
+        raise HTTPException(status_code=404, detail="Dataset file not found.")
+        
+    try:
+        with open(dataset_path, "r") as f:
+            dataset = json.load(f)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to read dataset: {str(e)}")
+        
+    parts = data.class_name.split("_", 1)
+    if len(parts) != 2:
+        raise HTTPException(status_code=400, detail="Invalid class name format. Expected CULTURE_LABEL.")
+        
+    culture_to_delete, label_to_delete = parts[0].upper(), parts[1]
+    
+    original_len = len(dataset)
+    filtered_dataset = [
+        sample for sample in dataset
+        if not (sample.get("culture", "").upper() == culture_to_delete and sample.get("label", "") == label_to_delete)
+    ]
+    
+    removed_count = original_len - len(filtered_dataset)
+    if removed_count == 0:
+        return {"status": "no_change", "message": f"No samples found for class '{data.class_name}'."}
+        
+    try:
+        with open(dataset_path, "w") as f:
+            json.dump(filtered_dataset, f, indent=2)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to write dataset: {str(e)}")
+        
+    return {
+        "status": "deleted",
+        "message": f"Successfully deleted {removed_count} samples for class '{data.class_name}'.",
+        "total_remaining": len(filtered_dataset)
+    }
+
 # Mount frontend files (CSS, JS) so they can be loaded directly from server
 # We mount frontend at root /static
 if os.path.exists("frontend"):
     app.mount("/static", StaticFiles(directory="frontend"), name="static")
+
 
 if __name__ == "__main__":
     import uvicorn
