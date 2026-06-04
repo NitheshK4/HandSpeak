@@ -1,4 +1,6 @@
 /* Global Reset and Styles */
+/* Global Reset and Styles */
+/* edited on 04/06/26 by Nithesh kumar */
 :root {
     --bg-main: #0a0a0f;
     --bg-surface: rgba(18, 18, 28, 0.65);
@@ -16,6 +18,13 @@
     --color-success: #00e676;
     
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Theme Overrides variables */
+    --theme-gradient-1: rgba(191, 85, 236, 0.1);
+    --theme-gradient-2: rgba(0, 242, 254, 0.1);
+    --brand-gradient: linear-gradient(135deg, #00f2fe, #4facfe, #a18cd1);
+    --btn-primary-gradient: linear-gradient(135deg, #00c6ff, #0072ff);
+    --btn-primary-shadow: rgba(0, 114, 255, 0.3);
 }
 
 * {
@@ -30,9 +39,10 @@ body {
     color: var(--text-primary);
     min-height: 100vh;
     overflow-x: hidden;
+     /*edited on 04/06/26 by Nithesh kumar  */
     background-image: 
-        radial-gradient(at 10% 20%, rgba(191, 85, 236, 0.1) 0px, transparent 50%),
-        radial-gradient(at 90% 80%, rgba(0, 242, 254, 0.1) 0px, transparent 50%);
+        radial-gradient(at 10% 20%, var(--theme-gradient-1) 0px, transparent 50%),
+        radial-gradient(at 90% 80%, var(--theme-gradient-2) 0px, transparent 50%);
 }
 
 /* App Container Layout */
@@ -62,7 +72,7 @@ body {
 
 .brand-logo {
     font-size: 2.2rem;
-    background: linear-gradient(135deg, #00f2fe, #4facfe, #a18cd1);
+    background: var(--brand-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 0 12px rgba(79, 172, 254, 0.6));
@@ -367,15 +377,16 @@ body {
     transition: var(--transition);
 }
 
+/* edited on 04/06/26 by Nithesh kumar */
 .btn-primary {
-    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    background: var(--btn-primary-gradient);
     color: #fff;
-    box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
+    box-shadow: 0 4px 15px var(--btn-primary-shadow);
 }
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 114, 255, 0.45);
+    box-shadow: 0 6px 20px var(--btn-primary-shadow);
 }
 
 .btn-secondary {
@@ -1289,4 +1300,37 @@ body {
 .toast.warning .toast-icon {
     color: #ffaa00;
 }
+/* added on 04/06/26 by Nithesh kumar */
+/* Custom Visual Themes */
+body.solar {
+    --color-gnn: #ff0844;
+    --color-gnn-glow: rgba(255, 8, 68, 0.3);
+    --color-mlp: #ffb199;
+    --color-mlp-glow: rgba(255, 177, 153, 0.3);
+    --color-rf: #ff7b00;
+    --color-rf-glow: rgba(255, 123, 0, 0.3);
+    --theme-gradient-1: rgba(255, 8, 68, 0.08);
+    --theme-gradient-2: rgba(255, 177, 153, 0.08);
+    --brand-gradient: linear-gradient(135deg, #ff0844, #ffb199, #ff5e3a);
+    --btn-primary-gradient: linear-gradient(135deg, #ff0844, #ff5e3a);
+    --btn-primary-shadow: rgba(255, 8, 68, 0.35);
+}
 
+body.emerald {
+    --color-gnn: #00ff87;
+    --color-gnn-glow: rgba(0, 255, 135, 0.3);
+    --color-mlp: #60efff;
+    --color-mlp-glow: rgba(96, 239, 255, 0.3);
+    --color-rf: #38f9d7;
+    --color-rf-glow: rgba(56, 249, 215, 0.3);
+    --theme-gradient-1: rgba(0, 255, 135, 0.08);
+    --theme-gradient-2: rgba(96, 239, 255, 0.08);
+    --brand-gradient: linear-gradient(135deg, #00ff87, #60efff, #00a8ff);
+    --btn-primary-gradient: linear-gradient(135deg, #00ff87, #00a8ff);
+    --btn-primary-shadow: rgba(0, 255, 135, 0.35);
+}
+
+.theme-dot.active {
+    transform: scale(1.15);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}

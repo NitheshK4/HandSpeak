@@ -162,7 +162,7 @@ def train_pytorch_model(model, train_loader, val_loader, num_classes, epochs=60,
                   
     return history
 
-def run_training():
+def run_training(epochs=100, lr=0.001):
     print("Loading data...")
     X, y, class_to_idx, idx_to_class = load_data()
     
@@ -190,7 +190,8 @@ def run_training():
     print("\n--- Training Graph Neural Network (GNN) ---")
     gcn_model = HandGCN(in_features=3, num_classes=num_classes)
     start_time = time.time()
-    gcn_history = train_pytorch_model(gcn_model, train_loader, val_loader, num_classes, epochs=100)
+    #edited on 04/06/26 by Nithesh kumar
+    gcn_history = train_pytorch_model(gcn_model, train_loader, val_loader, num_classes, epochs=epochs, lr=lr)
     gcn_train_time = time.time() - start_time
     
     # Measure GCN inference latency
@@ -205,7 +206,8 @@ def run_training():
     print("\n--- Training Multi-Layer Perceptron (MLP) ---")
     mlp_model = HandMLP(in_features=21*3, num_classes=num_classes)
     start_time = time.time()
-    mlp_history = train_pytorch_model(mlp_model, train_loader, val_loader, num_classes, epochs=100)
+    #edited on 04/06/26 by Nithesh kumar
+    mlp_history = train_pytorch_model(mlp_model, train_loader, val_loader, num_classes, epochs=epochs, lr=lr)
     mlp_train_time = time.time() - start_time
     
     # Measure MLP inference latency

@@ -8,12 +8,15 @@ let recordedFrames = [];
 let lastFpsUpdate = Date.now();
 let framesCount = 0;
 
+// editen on 04/06/26 by Nithesh kumar
 // Speech and Sentence Builder State
 let isSpeechEnabled = true;
 let sentenceWords = [];
 let lastTopPrediction = "";
 let predictionHeldCount = 0;
 const HOLD_THRESHOLD = 10; // Consecutive frames to register pose as a word in sentence
+let minConfidenceThreshold = 0.70;
+let deletedWords = [];
 
 // 3D Skeleton Rotator State
 let rotateX = -0.3; // radians
@@ -69,9 +72,12 @@ const toggleSpeechBtn = document.getElementById('toggle-speech');
 const sentenceTextEl = document.getElementById('sentence-text');
 const btnSpeakAll = document.getElementById('btn-speak-all');
 const btnCopySentence = document.getElementById('btn-copy-sentence');
+// edited on 04/06/26 ny Nithesh kumar
 const btnBackspace = document.getElementById('btn-backspace');
+const btnUndo = document.getElementById('btn-undo');
 const btnClearSentence = document.getElementById('btn-clear-sentence');
 const historyListEl = document.getElementById('history-list');
+const btnExportHistory = document.getElementById('btn-export-history');
 
 // Recorder Elements
 const recordCultureSelect = document.getElementById('record-culture');
@@ -354,7 +360,7 @@ function updatePredictionUI(preds) {
     }
     
     // Render top consensus prediction
-    if (topConfidence > 0.20 && topLabel) {
+        if (topConfidence >= minConfidenceThreshold && topLabel) {
         topPredictionText.innerText = topLabel;
         topCultureBadge.innerText = topCulture;
         topCultureBadge.style.display = 'inline-block';
@@ -452,11 +458,16 @@ function speakWord(text) {
     }
 }
 
+// edited on 04/06/26 by Nithesh kumar
 function triggerSpeechAndSentence(word, culture, confidence, model) {
     // 1. Text-to-Speech
     if (isSpeechEnabled) {
         speakWord(word);
     }
+    
+    // Reset undo memory when new gestures are registered
+    deletedWords = [];
+    if (btnUndo) btnUndo.disabled = true;
     
     // 2. Add to sentence builder
     sentenceWords.push(word);
@@ -489,7 +500,7 @@ function triggerSpeechAndSentence(word, culture, confidence, model) {
     // 3. Append to prediction log list
     appendActivityLog(word, culture, confidence, model);
 }
-
+// edited by Nithesh kumar on 04/04/26
 function triggerSentenceUpdate() {
     if (sentenceWords.length === 0) {
         sentenceTextEl.innerHTML = '<div class="sentence-placeholder">Hold a pose for 1.5 seconds to build a phrase...</div>';
@@ -517,6 +528,11 @@ function triggerSentenceUpdate() {
         btnCopySentence.disabled = false;
         btnBackspace.disabled = false;
         btnClearSentence.disabled = false;
+    }
+    
+    // Update Undo button state
+    if (btnUndo) {
+        btnUndo.disabled = deletedWords.length === 0;
     }
 }
 
@@ -546,16 +562,18 @@ btnCopySentence.addEventListener('click', () => {
         });
     }
 });
-
+// edited by Nithesh kumar on 04/06/26
 btnBackspace.addEventListener('click', () => {
     if (sentenceWords.length > 0) {
-        sentenceWords.pop();
+        const popped = sentenceWords.pop();
+        if (popped) deletedWords.push(popped);
         triggerSentenceUpdate();
     }
 });
 
 btnClearSentence.addEventListener('click', () => {
     sentenceWords = [];
+    deletedWords = [];
     triggerSentenceUpdate();
 });
 
@@ -866,10 +884,18 @@ function showRecordStatus(msg, type) {
 }
 
 // 9. Retrain & Benchmarking Metrics
+// edited by Nithesh kumar on 04/06/26
 btnRetrain.addEventListener('click', async () => {
-    if (confirm("Are you sure you want to retrain all models on the updated dataset? This will take a few seconds.")) {
+    const epochsVal = parseInt(document.getElementById('train-epochs')?.value || '100');
+    const lrVal = parseFloat(document.getElementById('train-lr')?.value || '0.001');
+
+    if (confirm(`Are you sure you want to retrain all models (Epochs: ${epochsVal}, LR: ${lrVal})? This takes a few seconds.`)) {
         try {
-            const response = await fetch(`${API_URL}/api/train`, { method: 'POST' });
+            const response = await fetch(`${API_URL}/api/train`, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ epochs: epochsVal, lr: lrVal })
+            });
             if (response.ok) {
                 showToast("Model retraining started in the background...", "info");
                 setBackendStatus('training', 'Backend Training Models...');
@@ -932,15 +958,19 @@ async function fetchTrainingHistory() {
         console.error("Failed to fetch training history", err);
     }
 }
-
+// edited by Nithesh kumar on 04/06/26
 function renderTrainingHistoryTable(history) {
     const tbody = document.getElementById('history-runs-tbody');
     const clearBtn = document.getElementById('btn-clear-history');
-    if (!tbody) return;
     
+    if (btnExportHistory) {
+        btnExportHistory.style.display = (history && history.length > 0) ? 'inline-flex' : 'none';
+    }
     if (clearBtn) {
         clearBtn.style.display = (history && history.length > 0) ? 'inline-flex' : 'none';
     }
+    
+    if (!tbody) return;
     
     if (!history || history.length === 0) {
         tbody.innerHTML = `
@@ -1145,9 +1175,12 @@ window.addEventListener('keydown', (e) => {
     } else if (key === 'c') {
         e.preventDefault();
         btnCopySentence.click();
-    } else if (key === 'r') {
+    } else if (key === 'r') { //edited by Nithesh kumar on 04/06/26
         e.preventDefault();
         btnClearSentence.click();
+    } else if (key === 'u') {
+        e.preventDefault();
+        if (btnUndo && !btnUndo.disabled) btnUndo.click();
     } else if (key === 'backspace' || key === 'b') {
         e.preventDefault();
         btnBackspace.click();
@@ -1305,3 +1338,89 @@ render3DGrid();
 fetchDatasetStats();
 // Periodically check status (every 10s)
 setInterval(checkBackendHealth, 10000);
+// added on 04/06/26 by Nithesh kumar 
+// BIND CONVERSION SLIDER
+const confSlider = document.getElementById('conf-threshold-slider');
+const confValueEl = document.getElementById('conf-threshold-value');
+if (confSlider && confValueEl) {
+    confSlider.addEventListener('input', (e) => {
+        const val = e.target.value;
+        confValueEl.innerText = `${val}%`;
+        minConfidenceThreshold = parseFloat(val) / 100;
+    });
+}
+
+// BIND UNDO BUTTON EVENT
+if (btnUndo) {
+    btnUndo.addEventListener('click', () => {
+        if (deletedWords.length > 0) {
+            const recovered = deletedWords.pop();
+            if (recovered) {
+                sentenceWords.push(recovered);
+                triggerSentenceUpdate();
+            }
+        }
+    });
+}
+
+// BIND HISTORICAL CSV EXPORTER
+if (btnExportHistory) {
+    btnExportHistory.addEventListener('click', async () => {
+        try {
+            const response = await fetch(`${API_URL}/api/training_history`);
+            if (response.ok) {
+                const history = await response.json();
+                if (!history || history.length === 0) {
+                    showToast("No historical records to export.", "warning");
+                    return;
+                }
+                
+                let csvContent = "Timestamp,GCN Accuracy,MLP Accuracy,RF Accuracy\n";
+                history.forEach(run => {
+                    csvContent += `${run.timestamp},${(run.gnn_val_acc * 100).toFixed(1)}%,${(run.mlp_val_acc * 100).toFixed(1)}%,${(run.rf_val_acc * 100).toFixed(1)}%\n`;
+                });
+                
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.setAttribute("href", url);
+                link.setAttribute("download", `handspeak_training_history_${new Date().toISOString().split('T')[0]}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast("CSV export downloaded successfully!", "success");
+            }
+        } catch (err) {
+            console.error("CSV export failed", err);
+            showToast("Failed to export historical runs.", "error");
+        }
+    });
+}
+
+// BIND THEME SWITCHER
+const themeDots = document.querySelectorAll('.theme-dot');
+themeDots.forEach(dot => {
+    dot.addEventListener('click', () => {
+        themeDots.forEach(d => {
+            d.classList.remove('active');
+            d.style.borderColor = 'transparent';
+        });
+        
+        dot.classList.add('active');
+        dot.style.borderColor = '#fff';
+        
+        const theme = dot.getAttribute('data-theme');
+        document.body.className = ''; // reset body class
+        if (theme !== 'cyan') {
+            document.body.classList.add(theme);
+        }
+        localStorage.setItem('handspeak-theme', theme);
+    });
+});
+
+// LOAD PREFERRED THEME
+const savedTheme = localStorage.getItem('handspeak-theme');
+if (savedTheme) {
+    const activeDot = document.querySelector(`.theme-dot[data-theme="${savedTheme}"]`);
+    if (activeDot) activeDot.click();
+}

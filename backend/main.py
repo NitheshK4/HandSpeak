@@ -52,6 +52,10 @@ class CustomGestureData(BaseModel):
     culture: str
     label: str
     landmarks: List[List[float]]
+#added on 04/06/26
+class TrainConfig(BaseModel):
+    epochs: int = 100
+    lr: float = 0.001
 
 def load_models():
     global gcn_model, mlp_model, rf_model, class_mapping
@@ -252,24 +256,24 @@ def get_metrics():
     metrics["trained"] = True
     metrics["is_training_active"] = is_training_active
     return metrics
-
-def bg_train_task():
+#edited on 04/06/26
+def bg_train_task(epochs: int, lr: float):
     global is_training_active
     try:
         is_training_active = True
-        run_training()
+        run_training(epochs=epochs, lr=lr)
         load_models()
     finally:
         is_training_active = False
 
 @app.post("/api/train")
-def trigger_training(background_tasks: BackgroundTasks):
+def trigger_training(config: TrainConfig, background_tasks: BackgroundTasks):
     global is_training_active
     if is_training_active:
         return {"status": "already_training", "message": "Training is already in progress."}
         
-    background_tasks.add_task(bg_train_task)
-    return {"status": "started", "message": "Model training triggered in background."}
+    background_tasks.add_task(bg_train_task, config.epochs, config.lr)
+    return {"status": "started", "message": f"Model training (epochs={config.epochs}, lr={config.lr}) triggered in background."}
 
 @app.post("/api/save_gesture")
 def save_gesture(data: CustomGestureData):

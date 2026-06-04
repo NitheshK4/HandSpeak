@@ -44,6 +44,15 @@
                     <i class="fa-solid fa-chart-line"></i> Model Benchmarks
                 </button>
             </nav>
+                       <!-- edited on 04/06/26 by Nithesh kumar -->
+            <div class="theme-switcher-wrapper" style="margin-top: auto; padding: 1.25rem 0; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.5rem;">
+                <span style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-palette"></i> UI Theme</span>
+                <div class="theme-buttons" style="display: flex; gap: 0.5rem;">
+                    <button class="theme-dot active" data-theme="cyan" title="Neon Cyan" style="width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #00f2fe, #4facfe); border: 2px solid #fff; cursor: pointer; padding: 0; outline: none; transition: var(--transition);"></button>
+                    <button class="theme-dot" data-theme="solar" title="Solar Flare" style="width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #ff0844, #ffb199); border: 2px solid transparent; cursor: pointer; padding: 0; outline: none; transition: var(--transition);"></button>
+                    <button class="theme-dot" data-theme="emerald" title="Emerald Forest" style="width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #00ff87, #60efff); border: 2px solid transparent; cursor: pointer; padding: 0; outline: none; transition: var(--transition);"></button>
+                </div>
+            </div>
             <div class="connection-status">
                 <div class="status-indicator online" id="status-dot"></div>
                 <span id="status-text">Connecting to Backend...</span>
@@ -57,18 +66,25 @@
                 <div class="header-title">
                     <h2>Real-time Sign Language Detection</h2>
                     <p>ASL · ISL · BSL · LSE · Digits (0-9) · Universal — Powered by Rule-Based AI + GNN + MLP + Random Forest</p>
-                </div>
-                <div class="culture-indicator">
-                    <label for="global-culture">Active Culture Context:</label>
-                    <select id="global-culture" class="custom-select">
-                        <option value="UNIVERSAL" selected>Universal (All Signs)</option>
-                        <option value="ASL">ASL (American)</option>
-                        <option value="ISL">ISL (Indian)</option>
-                        <option value="BSL">BSL (British)</option>
-                        <option value="LSE">LSE (Spanish)</option>
-                        <option value="DIGITS">Digits (0-9)</option>
-                        <option value="ALL">All Cultures</option>
-                    </select>
+                                <!--edited on 04/06/26 by Nithesh kumar -->
+                    <div class="culture-indicator" style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <label for="global-culture">Active Culture Context:</label>
+                        <select id="global-culture" class="custom-select">
+                            <option value="UNIVERSAL" selected>Universal (All Signs)</option>
+                            <option value="ASL">ASL (American)</option>
+                            <option value="ISL">ISL (Indian)</option>
+                            <option value="BSL">BSL (British)</option>
+                            <option value="LSE">LSE (Spanish)</option>
+                            <option value="DIGITS">Digits (0-9)</option>
+                            <option value="ALL">All Cultures</option>
+                        </select>
+                    </div>
+                    <div class="confidence-slider-container" style="display: flex; align-items: center; gap: 0.5rem; width: 100%; justify-content: flex-end;">
+                        <label for="conf-threshold-slider" style="font-size: 0.8rem; color: var(--text-secondary);">Min Confidence:</label>
+                        <input type="range" id="conf-threshold-slider" min="30" max="95" value="70" style="width: 100px; accent-color: var(--color-gnn); cursor: pointer;">
+                        <span id="conf-threshold-value" style="font-size: 0.8rem; color: var(--color-gnn); font-weight: 600; min-width: 32px; text-align: right;">70%</span>
+                    </div>
                 </div>
             </header>
 
@@ -223,15 +239,19 @@
                                 <button id="btn-copy-sentence" class="btn btn-secondary btn-sm" disabled>
                                     <i class="fa-solid fa-copy"></i> Copy
                                 </button>
+                                  <!-- edited on 04/06/26 by Nithesh kumar -->
                                 <button id="btn-backspace" class="btn btn-secondary btn-sm" disabled>
                                     <i class="fa-solid fa-backspace"></i> Backspace
+                                </button>
+                                <button id="btn-undo" class="btn btn-secondary btn-sm" disabled>
+                                    <i class="fa-solid fa-rotate-left"></i> Undo
                                 </button>
                                 <button id="btn-clear-sentence" class="btn btn-danger btn-sm" disabled>
                                     <i class="fa-solid fa-trash-can"></i> Clear
                                 </button>
                             </div>
                             <div class="keyboard-shortcuts-hint" style="margin-top: 10px; font-size: 0.75rem; color: var(--text-secondary); text-align: center;">
-                                <i class="fa-solid fa-keyboard"></i> <strong>Shortcuts:</strong> <code>[K]</code> Camera · <code>[S]</code> Speech · <code>[C]</code> Copy · <code>[B / Backspace]</code> Backspace · <code>[R]</code> Clear
+                                <i class="fa-solid fa-keyboard"></i> <strong>Shortcuts:</strong> <code>[K]</code> Camera · <code>[S]</code> Speech · <code>[C]</code> Copy · <code>[B / Backspace]</code> Backspace · <code>[U]</code> Undo · <code>[R]</code> Clear
                             </div>
                         </div>
 
@@ -416,11 +436,32 @@
 
                     <!-- Tab 3: Model Benchmarks -->
                     <div class="tab-content" id="metrics-tab">
-                        <div class="card-header">
+                                             <!-- edited on 04/06/26 By Nithesh kumar -->
+                        <div class="card-header" style="flex-wrap: wrap; gap: 1rem;">
                             <h3><i class="fa-solid fa-chart-bar"></i> Performance Benchmark</h3>
-                            <button id="btn-retrain" class="btn btn-primary">
-                                <i class="fa-solid fa-rotate"></i> Retrain Models
-                            </button>
+                            <div class="training-config" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                                <div style="display: flex; align-items: center; gap: 0.35rem;">
+                                    <label for="train-epochs" style="font-size: 0.8rem; color: var(--text-secondary);">Epochs:</label>
+                                    <select id="train-epochs" class="custom-select" style="padding: 0.3rem 1.5rem 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 6px; height: 32px;">
+                                        <option value="20">20</option>
+                                        <option value="50">50</option>
+                                        <option value="100" selected>100</option>
+                                        <option value="150">150</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.35rem;">
+                                    <label for="train-lr" style="font-size: 0.8rem; color: var(--text-secondary);">LR:</label>
+                                    <select id="train-lr" class="custom-select" style="padding: 0.3rem 1.5rem 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 6px; height: 32px;">
+                                        <option value="0.01">0.01</option>
+                                        <option value="0.005">0.005</option>
+                                        <option value="0.001" selected>0.001</option>
+                                        <option value="0.0005">0.0005</option>
+                                    </select>
+                                </div>
+                                <button id="btn-retrain" class="btn btn-primary" style="height: 32px; padding: 0 0.85rem;">
+                                    <i class="fa-solid fa-rotate"></i> Retrain Models
+                                </button>
+                            </div>
                         </div>
                         <div class="metrics-scroller">
                             <div class="charts-grid">
@@ -472,12 +513,18 @@
                                 <canvas id="loss-history-chart"></canvas>
                             </div>
                             
+                                          <!-- edited on 04/06/26 by Nithesh kumar -->
                             <div class="training-history-log-wrapper" style="margin-top: 2rem; margin-bottom: 2rem;">
-                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
                                      <h4 style="margin-bottom: 0;">Historical Training Runs Log</h4>
-                                     <button id="btn-clear-history" class="btn btn-danger btn-sm" style="display: none;">
-                                         <i class="fa-solid fa-trash-can"></i> Clear History
-                                     </button>
+                                     <div style="display: flex; gap: 0.5rem;">
+                                         <button id="btn-export-history" class="btn btn-secondary btn-sm" style="display: none; padding: 0.4rem 0.75rem; font-size: 0.75rem;">
+                                             <i class="fa-solid fa-file-csv"></i> Export CSV
+                                         </button>
+                                         <button id="btn-clear-history" class="btn btn-danger btn-sm" style="display: none; padding: 0.4rem 0.75rem; font-size: 0.75rem;">
+                                             <i class="fa-solid fa-trash-can"></i> Clear History
+                                         </button>
+                                     </div>
                                  </div>
                                  <table class="metrics-table" id="history-runs-table">
                                     <thead>
