@@ -471,36 +471,12 @@ function triggerSpeechAndSentence(word, culture, confidence, model) {
     
     // 2. Add to sentence builder
     sentenceWords.push(word);
-    
-    // Update display box
-    sentenceTextEl.innerHTML = '';
-    sentenceWords.forEach(w => {
-        const span = document.createElement('span');
-        span.className = 'sentence-word';
-        span.innerHTML = `${w} <i class="fa-solid fa-circle-xmark font-sm" style="cursor: pointer; opacity: 0.7;"></i>`;
-        
-        // Remove word on click
-        span.querySelector('i').addEventListener('click', (e) => {
-            e.stopPropagation();
-            const idx = sentenceWords.indexOf(w);
-            if (idx > -1) {
-                sentenceWords.splice(idx, 1);
-                triggerSentenceUpdate();
-            }
-        });
-        sentenceTextEl.appendChild(span);
-    });
-    
-    // Enable buttons
-    btnSpeakAll.disabled = false;
-    btnCopySentence.disabled = false;
-    btnBackspace.disabled = false;
-    btnClearSentence.disabled = false;
+    triggerSentenceUpdate();
     
     // 3. Append to prediction log list
     appendActivityLog(word, culture, confidence, model);
 }
-// edited by Nithesh kumar on 04/04/26
+
 function triggerSentenceUpdate() {
     if (sentenceWords.length === 0) {
         sentenceTextEl.innerHTML = '<div class="sentence-placeholder">Hold a pose for 1.5 seconds to build a phrase...</div>';
@@ -533,6 +509,13 @@ function triggerSentenceUpdate() {
     // Update Undo button state
     if (btnUndo) {
         btnUndo.disabled = deletedWords.length === 0;
+    }
+
+    // Persist sentence list
+    try {
+        localStorage.setItem('handspeak-sentence', JSON.stringify(sentenceWords));
+    } catch (e) {
+        console.error("Local storage save failed", e);
     }
 }
 
@@ -1371,6 +1354,22 @@ render3DGrid();
 fetchDatasetStats();
 // Periodically check status (every 10s)
 setInterval(checkBackendHealth, 10000);
+
+// Load saved sentence on startup
+try {
+    const savedSentence = localStorage.getItem('handspeak-sentence');
+    if (savedSentence) {
+        const parsed = JSON.parse(savedSentence);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+            sentenceWords = parsed;
+            triggerSentenceUpdate();
+            // Wait slightly for connection dot to resolve to not clutter UI
+            setTimeout(() => showToast("Restored sentence from backup!", "success"), 1000);
+        }
+    }
+} catch (err) {
+    console.error("Failed to recover saved sentence", err);
+}
 // added on 04/06/26 by Nithesh kumar 
 // BIND CONVERSION SLIDER
 const confSlider = document.getElementById('conf-threshold-slider');
