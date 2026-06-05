@@ -8,604 +8,642 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome for icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js CDN -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- MediaPipe CDNs -->
+    <!-- MediaPipe -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
-    <!-- Custom CSS -->
+    <!-- Styles -->
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="brand">
-                <i class="fa-solid fa-hand-sparkles brand-logo"></i>
-                    <div class="brand-text">
-                        <h1>HandSpeak</h1>
-                        <span>AI Sign Language Recognition</span>
-                    </div>
-            </div>
-            <nav class="nav-menu">
-                <button class="nav-btn active" data-target="live-tab">
-                    <i class="fa-solid fa-video"></i> Live Inference
-                </button>
-                <button class="nav-btn" data-target="signs-tab">
-                    <i class="fa-solid fa-hand"></i> Signs Guide
-                </button>
-                <button class="nav-btn" data-target="record-tab">
-                    <i class="fa-solid fa-circle-dot"></i> Gesture Recorder
-                </button>
-                <button class="nav-btn" data-target="practice-tab">
-                    <i class="fa-solid fa-graduation-cap"></i> Practice Room
-                </button>
-                <button class="nav-btn" data-target="metrics-tab">
-                    <i class="fa-solid fa-chart-line"></i> Model Benchmarks
-                </button>
-            </nav>
-                       <!-- edited on 04/06/26 by Nithesh kumar -->
-            <div class="theme-switcher-wrapper" style="margin-top: auto; padding: 1.25rem 0; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.5rem;">
-                <span style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-palette"></i> UI Theme</span>
-                <div class="theme-buttons" style="display: flex; gap: 0.5rem;">
-                    <button class="theme-dot active" data-theme="cyan" title="Neon Cyan" style="width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #00f2fe, #4facfe); border: 2px solid #fff; cursor: pointer; padding: 0; outline: none; transition: var(--transition);"></button>
-                    <button class="theme-dot" data-theme="solar" title="Solar Flare" style="width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #ff0844, #ffb199); border: 2px solid transparent; cursor: pointer; padding: 0; outline: none; transition: var(--transition);"></button>
-                    <button class="theme-dot" data-theme="emerald" title="Emerald Forest" style="width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #00ff87, #60efff); border: 2px solid transparent; cursor: pointer; padding: 0; outline: none; transition: var(--transition);"></button>
-                </div>
-            </div>
-            <div class="connection-status">
-                <div class="status-indicator online" id="status-dot"></div>
-                <span id="status-text">Connecting to Backend...</span>
-            </div>
-        </aside>
+<div class="app-container">
 
-        <!-- Main Content Area -->
-        <main class="main-content">
-            <!-- Header -->
-            <header class="top-header">
-                <div class="header-title">
-                    <h2>Real-time Sign Language Detection</h2>
-                    <p>ASL · ISL · BSL · LSE · Digits (0-9) · Universal — Powered by Rule-Based AI + GNN + MLP + Random Forest</p>
-                                <!--edited on 04/06/26 by Nithesh kumar -->
-                    <div class="culture-indicator" style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <label for="global-culture">Active Culture Context:</label>
-                        <select id="global-culture" class="custom-select">
-                            <option value="UNIVERSAL" selected>Universal (All Signs)</option>
-                            <option value="ASL">ASL (American)</option>
-                            <option value="ISL">ISL (Indian)</option>
-                            <option value="BSL">BSL (British)</option>
-                            <option value="LSE">LSE (Spanish)</option>
-                            <option value="DIGITS">Digits (0-9)</option>
-                            <option value="ALL">All Cultures</option>
-                        </select>
-                    </div>
-                    <div class="confidence-slider-container" style="display: flex; align-items: center; gap: 0.5rem; width: 100%; justify-content: flex-end;">
-                        <label for="conf-threshold-slider" style="font-size: 0.8rem; color: var(--text-secondary);">Min Confidence:</label>
-                        <input type="range" id="conf-threshold-slider" min="30" max="95" value="70" style="width: 100px; accent-color: var(--color-gnn); cursor: pointer;">
-                        <span id="conf-threshold-value" style="font-size: 0.8rem; color: var(--color-gnn); font-weight: 600; min-width: 32px; text-align: right;">70%</span>
-                    </div>
-                </div>
-            </header>
+    <!-- ═══════════════════════ Sidebar ═══════════════════════ -->
+    <aside class="sidebar">
 
-            <div class="dashboard-grid">
-                <!-- Left Column Layout -->
-                <div class="left-column">
-                    <!-- Webcam Stream -->
-                    <section class="camera-card card">
-                        <div class="card-header">
-                            <h3><i class="fa-solid fa-camera"></i> Interactive Video Feed</h3>
-                            <div class="camera-actions">
-                                <button id="toggle-camera" class="btn btn-secondary">
-                                    <i class="fa-solid fa-video-slash"></i> Stop Camera
-                                </button>
-                            </div>
-                        </div>
-                        <div class="video-container">
-                            <video id="webcam" autoplay playsinline muted></video>
-                            <canvas id="hand-canvas"></canvas>
-                            <div class="detection-overlay" id="detection-msg">
-                                <span class="pulse-dot"></span> Detecting Hand Landmarks...
-                            </div>
-                        </div>
-                        <div class="fps-counter">
-                            <span>Webcam FPS: <strong id="webcam-fps">0</strong></span>
-                            <span>Backend Latency: <strong id="api-latency">0ms</strong></span>
-                        </div>
-                    </section>
-
-                    <!-- 3D Projection Visualizer -->
-                    <section class="rotator-card card">
-                        <div class="card-header">
-                            <h3><i class="fa-solid fa-cube"></i> Interactive 3D Skeleton</h3>
-                            <span class="rotator-hint"><i class="fa-solid fa-arrows-spin"></i> Click & Drag to Orbit</span>
-                        </div>
-                        <div class="rotator-container">
-                            <canvas id="rotator-canvas"></canvas>
-                        </div>
-                    </section>
-                </div>
-
-                <!-- Right Panel: Dynamic Tabs Content -->
-                <section class="details-card card">
-                    <!-- Tab 1: Live Inference -->
-                    <div class="tab-content active" id="live-tab">
-                        <div class="card-header">
-                            <h3><i class="fa-solid fa-brain"></i> Multi-Model Predictions</h3>
-                        </div>
-                        
-                        <div class="prediction-highlight">
-                            <div class="best-prediction">
-                                <span class="label"><i class="fa-solid fa-wand-magic-sparkles"></i> Live Sign Detection (Rule-Based)</span>
-                                <h2 id="top-prediction-text">No Hand Detected</h2>
-                                <div class="prediction-meta">
-                                    <span class="badge" id="top-culture-badge">---</span>
-                                    <span class="badge" id="top-confidence-badge">---</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Rule-Based classifier card (PRIMARY) -->
-                        <div class="model-result-row" style="border: 1.5px solid var(--color-accent); border-radius: 10px; background: rgba(0,242,254,0.04);">
-                            <div class="model-badge rule-color">
-                                ⚡ Rule
-                                <span class="tooltip-icon"><i class="fa-solid fa-circle-info"></i></span>
-                                <span class="tooltip-text">Rule-Based: Classifies gestures based on finger extension state (PIP vs TIP distance). Zero training needed, extremely fast (<1ms).</span>
-                            </div>
-                            <div class="model-details">
-                                <div class="model-desc">
-                                    <span class="model-prediction rule-text" id="rule-pred">---</span>
-                                    <span class="model-latency" id="rule-lat">--- ms</span>
-                                </div>
-                                <div class="progress-bar-container">
-                                    <div class="progress-bar rule-bg" id="rule-conf-bar" style="width: 0%"></div>
-                                </div>
-                                <span class="confidence-val" id="rule-conf-text">Confidence: 0%</span>
-                            </div>
-                        </div>
-
-                        <!-- GNN prediction results card -->
-                        <div class="model-result-row">
-                            <div class="model-badge gnn-color">
-                                GNN
-                                <span class="tooltip-icon"><i class="fa-solid fa-circle-info"></i></span>
-                                <span class="tooltip-text">Graph GCN: PyTorch model that treats landmarks as nodes on the skeleton graph. High structural accuracy.</span>
-                            </div>
-                            <div class="model-details">
-                                <div class="model-desc">
-                                    <span class="model-prediction" id="gnn-pred">---</span>
-                                    <span class="model-latency" id="gnn-lat">--- ms</span>
-                                </div>
-                                <div class="progress-bar-container">
-                                    <div class="progress-bar gnn-bg" id="gnn-conf-bar" style="width: 0%"></div>
-                                </div>
-                                <span class="confidence-val" id="gnn-conf-text">Confidence: 0%</span>
-                            </div>
-                        </div>
-
-                        <!-- MLP prediction results card -->
-                        <div class="model-result-row">
-                            <div class="model-badge mlp-color">
-                                MLP
-                                <span class="tooltip-icon"><i class="fa-solid fa-circle-info"></i></span>
-                                <span class="tooltip-text">Multi-Layer Perceptron: PyTorch deep neural network operating on normalized coordinate vectors. Fast and accurate baseline.</span>
-                            </div>
-                            <div class="model-details">
-                                <div class="model-desc">
-                                    <span class="model-prediction" id="mlp-pred">---</span>
-                                    <span class="model-latency" id="mlp-lat">--- ms</span>
-                                </div>
-                                <div class="progress-bar-container">
-                                    <div class="progress-bar mlp-bg" id="mlp-conf-bar" style="width: 0%"></div>
-                                </div>
-                                <span class="confidence-val" id="mlp-conf-text">Confidence: 0%</span>
-                            </div>
-                        </div>
-
-                        <!-- Random Forest prediction results card -->
-                        <div class="model-result-row">
-                            <div class="model-badge rf-color">
-                                RF
-                                <span class="tooltip-icon"><i class="fa-solid fa-circle-info"></i></span>
-                                <span class="tooltip-text">Random Forest: Scikit-learn ensemble classifier built with decision trees. Provides classic ML benchmark.</span>
-                            </div>
-                            <div class="model-details">
-                                <div class="model-desc">
-                                    <span class="model-prediction" id="rf-pred">---</span>
-                                    <span class="model-latency" id="rf-lat">--- ms</span>
-                                </div>
-                                <div class="progress-bar-container">
-                                    <div class="progress-bar rf-bg" id="rf-conf-bar" style="width: 0%"></div>
-                                </div>
-                                <span class="confidence-val" id="rf-conf-text">Confidence: 0%</span>
-                            </div>
-                        </div>
-
-                        <!-- Sentence Builder Widget -->
-                        <div class="sentence-builder-wrapper">
-                            <div class="card-header-sub">
-                                <h4><i class="fa-solid fa-comment-dots"></i> Sentence Builder</h4>
-                                <button id="toggle-speech" class="btn btn-secondary btn-sm active">
-                                    <i class="fa-solid fa-volume-high"></i> TTS: On
-                                </button>
-                            </div>
-                            <div class="sentence-box">
-                                <div id="sentence-text" class="sentence-placeholder">Hold a pose for 1.5 seconds to build a phrase...</div>
-                            </div>
-                            <div class="sentence-controls">
-                                <button id="btn-speak-all" class="btn btn-secondary btn-sm" disabled>
-                                    <i class="fa-solid fa-play"></i> Speak Out Loud
-                                </button>
-                                <button id="btn-copy-sentence" class="btn btn-secondary btn-sm" disabled>
-                                    <i class="fa-solid fa-copy"></i> Copy
-                                </button>
-                                <button id="btn-backspace" class="btn btn-secondary btn-sm" disabled>
-                                    <i class="fa-solid fa-backspace"></i> Backspace
-                                </button>
-                                <button id="btn-undo" class="btn btn-secondary btn-sm" disabled>
-                                    <i class="fa-solid fa-rotate-left"></i> Undo
-                                </button>
-                                <button id="btn-download-sentence" class="btn btn-secondary btn-sm" disabled>
-                                    <i class="fa-solid fa-download"></i> Save Text
-                                </button>
-                                <button id="btn-clear-sentence" class="btn btn-danger btn-sm" disabled>
-                                    <i class="fa-solid fa-trash-can"></i> Clear
-                                </button>
-                            </div>
-                            <div class="keyboard-shortcuts-hint" style="margin-top: 10px; font-size: 0.75rem; color: var(--text-secondary); text-align: center;">
-                                <i class="fa-solid fa-keyboard"></i> <strong>Shortcuts:</strong> <code>[K]</code> Camera · <code>[S]</code> Speech · <code>[C]</code> Copy · <code>[B / Backspace]</code> Backspace · <code>[U]</code> Undo · <code>[R]</code> Clear
-                            </div>
-                        </div>
-
-                        <!-- Activity Log -->
-                        <div class="prediction-history-wrapper">
-                            <h4><i class="fa-solid fa-list-check"></i> Translation Activity Log</h4>
-                            <div class="history-list" id="history-list">
-                                <div class="history-item empty">No translations recorded yet.</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tab 2: Gesture Recorder -->
-                    <div class="tab-content" id="signs-tab">
-                        <div class="card-header">
-                            <h3><i class="fa-solid fa-hand"></i> Signs Reference Guide</h3>
-                        </div>
-                        <p style="color: var(--text-secondary); font-size:0.85rem; margin-bottom:1rem;">
-                            Show these hand shapes to the camera. Hold each pose steady for ~1.5 seconds.
-                        </p>
-
-                        <div class="signs-filter-wrapper" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; width: 100%; flex-wrap: wrap;">
-                            <div class="search-input-container" style="position: relative; flex-grow: 1; min-width: 200px;">
-                                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 0.85rem;"></i>
-                                <input type="text" id="signs-search" placeholder="Search signs by name or hint..." class="custom-input" style="padding-left: 2.2rem; width: 100%;">
-                            </div>
-                            <div class="signs-culture-filters" id="signs-culture-filters" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                <button class="btn btn-secondary btn-sm active" data-filter="ALL">All</button>
-                                <button class="btn btn-secondary btn-sm" data-filter="UNIVERSAL">Universal</button>
-                                <button class="btn btn-secondary btn-sm" data-filter="ASL">ASL</button>
-                                <button class="btn btn-secondary btn-sm" data-filter="ISL">ISL</button>
-                                <button class="btn btn-secondary btn-sm" data-filter="BSL">BSL</button>
-                                <button class="btn btn-secondary btn-sm" data-filter="LSE">LSE</button>
-                                <button class="btn btn-secondary btn-sm" data-filter="DIGITS">Digits</button>
-                            </div>
-                        </div>
-
-                        <!-- Universal Signs -->
-                        <div class="signs-culture-block" data-culture="UNIVERSAL">
-                            <h4 class="signs-culture-title">⚡ Universal Signs</h4>
-                            <div class="signs-grid">
-                                <div class="sign-card"><span class="sign-emoji">👋</span><strong>Hello / Palm</strong><span class="sign-hint">All 5 fingers open</span></div>
-                                <div class="sign-card"><span class="sign-emoji">✊</span><strong>Fist / Yes</strong><span class="sign-hint">All fingers curled</span></div>
-                                <div class="sign-card"><span class="sign-emoji">👍</span><strong>Like / Thumbs Up</strong><span class="sign-hint">Thumb pointing up</span></div>
-                                <div class="sign-card"><span class="sign-emoji">👎</span><strong>Dislike</strong><span class="sign-hint">Thumb pointing down</span></div>
-                                <div class="sign-card"><span class="sign-emoji">✌️</span><strong>Peace / Victory</strong><span class="sign-hint">Index + Middle up</span></div>
-                                <div class="sign-card"><span class="sign-emoji">☝️</span><strong>Point / One</strong><span class="sign-hint">Index finger only</span></div>
-                                <div class="sign-card"><span class="sign-emoji">🤙</span><strong>Call</strong><span class="sign-hint">Thumb + Pinky out</span></div>
-                                <div class="sign-card"><span class="sign-emoji">🤘</span><strong>Rock</strong><span class="sign-hint">Index + Pinky up</span></div>
-                                <div class="sign-card"><span class="sign-emoji">🖕</span><strong>MidFinger</strong><span class="sign-hint">Middle finger only</span></div>
-                                <div class="sign-card"><span class="sign-emoji">👌</span><strong>OK</strong><span class="sign-hint">Thumb+Index circle</span></div>
-                                <div class="sign-card"><span class="sign-emoji">🤟</span><strong>ILY / Love</strong><span class="sign-hint">Thumb+Index+Pinky</span></div>
-                                <div class="sign-card"><span class="sign-emoji">🔫</span><strong>Gun</strong><span class="sign-hint">Index up, thumb out</span></div>
-                                <div class="sign-card"><span class="sign-emoji">4️⃣</span><strong>Four</strong><span class="sign-hint">4 fingers, no thumb</span></div>
-                                <div class="sign-card"><span class="sign-emoji">3️⃣</span><strong>Three</strong><span class="sign-hint">Index+Middle+Ring</span></div>
-                                <div class="sign-card"><span class="sign-emoji">🤌</span><strong>Pinkie</strong><span class="sign-hint">Pinky only extended</span></div>
-                                <div class="sign-card"><span class="sign-emoji">🖖</span><strong>Spock</strong><span class="sign-hint">Split index/mid & ring/pinky</span></div>
-                            </div>
-                        </div>
-
-                        <!-- ASL Signs -->
-                        <div class="signs-culture-block" data-culture="ASL">
-                            <h4 class="signs-culture-title">🇺🇸 ASL — American Sign Language</h4>
-                            <div class="signs-grid">
-                                <div class="sign-card"><span class="sign-emoji">👋</span><strong>Hello</strong><span class="sign-hint">Open palm wave</span></div>
-                                <div class="sign-card"><span class="sign-emoji">✊</span><strong>Yes</strong><span class="sign-hint">Closed fist nod</span></div>
-                                <div class="sign-card"><span class="sign-emoji">👎</span><strong>No</strong><span class="sign-hint">Thumb pointing down</span></div>
-                                <div class="sign-card"><span class="sign-emoji">☝️</span><strong>Point</strong><span class="sign-hint">Index only extended</span></div>
-                                <div class="sign-card"><span class="sign-emoji">👌</span><strong>OK</strong><span class="sign-hint">Thumb+Index circle</span></div>
-                                <div class="sign-card"><span class="sign-emoji">🤟</span><strong>Love (ILY)</strong><span class="sign-hint">I Love You sign</span></div>
-                            </div>
-                        </div>
-
-                        <!-- ISL Signs -->
-                        <div class="signs-culture-block" data-culture="ISL">
-                            <h4 class="signs-culture-title">🇮🇳 ISL — Indian Sign Language</h4>
-                            <div class="signs-grid">
-                                <div class="sign-card"><span class="sign-emoji">🙏</span><strong>Namaste</strong><span class="sign-hint">Open palm greeting</span></div>
-                                <div class="sign-card"><span class="sign-emoji">👋</span><strong>Alvida</strong><span class="sign-hint">Open palm goodbye</span></div>
-                                <div class="sign-card"><span class="sign-emoji">👍</span><strong>TheekHai</strong><span class="sign-hint">Thumbs up = OK/Good</span></div>
-                                <div class="sign-card"><span class="sign-emoji">👎</span><strong>PasandNahi</strong><span class="sign-hint">Thumbs down = Dislike</span></div>
-                                <div class="sign-card"><span class="sign-emoji">✌️</span><strong>Vijay</strong><span class="sign-hint">V sign = Victory</span></div>
-                                <div class="sign-card"><span class="sign-emoji">👌</span><strong>Achaa</strong><span class="sign-hint">OK = Great/Achaa</span></div>
-                            </div>
-                        </div>
-
-                        <!-- BSL Signs -->
-                        <div class="signs-culture-block" data-culture="BSL">
-                            <h4 class="signs-culture-title">🇬🇧 BSL — British Sign Language</h4>
-                            <div class="signs-grid">
-                                <div class="sign-card"><span class="sign-emoji">☝️</span><strong>Salute</strong><span class="sign-hint">Index finger point</span></div>
-                                <div class="sign-card"><span class="sign-emoji">👍</span><strong>Awesome</strong><span class="sign-hint">Thumbs up</span></div>
-                                <div class="sign-card"><span class="sign-emoji">👎</span><strong>Dislike</strong><span class="sign-hint">Thumbs down</span></div>
-                                <div class="sign-card"><span class="sign-emoji">✌️</span><strong>Peace</strong><span class="sign-hint">Index + Middle up</span></div>
-                                <div class="sign-card"><span class="sign-emoji">👌</span><strong>Perfect</strong><span class="sign-hint">OK ring sign</span></div>
-                            </div>
-                        </div>
-
-                        <!-- LSE Signs -->
-                        <div class="signs-culture-block" data-culture="LSE">
-                            <h4 class="signs-culture-title">🇪🇸 LSE — Spanish Sign Language</h4>
-                            <div class="signs-grid">
-                                <div class="sign-card"><span class="sign-emoji">👋</span><strong>Hola</strong><span class="sign-hint">Open palm greeting</span></div>
-                                <div class="sign-card"><span class="sign-emoji">✊</span><strong>Si</strong><span class="sign-hint">Closed fist = Yes</span></div>
-                                <div class="sign-card"><span class="sign-emoji">👎</span><strong>No</strong><span class="sign-hint">Thumbs down = No</span></div>
-                                <div class="sign-card"><span class="sign-emoji">🤟</span><strong>Gracias</strong><span class="sign-hint">ILY sign = Thank You</span></div>
-                            </div>
-                        </div>
-
-                        <!-- Digits Signs -->
-                        <div class="signs-culture-block" data-culture="DIGITS">
-                            <h4 class="signs-culture-title">🔢 Digits (0-9)</h4>
-                            <div class="signs-grid">
-                                <div class="sign-card"><span class="sign-emoji">0️⃣</span><strong>0</strong><span class="sign-hint">Digit 0 sign</span></div>
-                                <div class="sign-card"><span class="sign-emoji">1️⃣</span><strong>1</strong><span class="sign-hint">Digit 1 sign</span></div>
-                                <div class="sign-card"><span class="sign-emoji">2️⃣</span><strong>2</strong><span class="sign-hint">Digit 2 sign</span></div>
-                                <div class="sign-card"><span class="sign-emoji">3️⃣</span><strong>3</strong><span class="sign-hint">Digit 3 sign</span></div>
-                                <div class="sign-card"><span class="sign-emoji">4️⃣</span><strong>4</strong><span class="sign-hint">Digit 4 sign</span></div>
-                                <div class="sign-card"><span class="sign-emoji">5️⃣</span><strong>5</strong><span class="sign-hint">Digit 5 sign</span></div>
-                                <div class="sign-card"><span class="sign-emoji">6️⃣</span><strong>6</strong><span class="sign-hint">Digit 6 sign</span></div>
-                                <div class="sign-card"><span class="sign-emoji">7️⃣</span><strong>7</strong><span class="sign-hint">Digit 7 sign</span></div>
-                                <div class="sign-card"><span class="sign-emoji">8️⃣</span><strong>8</strong><span class="sign-hint">Digit 8 sign</span></div>
-                                <div class="sign-card"><span class="sign-emoji">9️⃣</span><strong>9</strong><span class="sign-hint">Digit 9 sign</span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tab 2: Gesture Recorder -->
-                    <div class="tab-content" id="record-tab">
-                        <div class="card-header">
-                            <h3><i class="fa-solid fa-circle-dot"></i> Record Custom Gesture</h3>
-                        </div>
-                        <div class="recorder-form">
-                            <div class="form-group">
-                                <label for="record-culture">Target Culture Sign Language</label>
-                                <select id="record-culture" class="custom-select">
-                                    <option value="UNIVERSAL" selected>Universal (All Signs)</option>
-                                    <option value="ASL">ASL (American)</option>
-                                    <option value="ISL">ISL (Indian)</option>
-                                    <option value="BSL">BSL (British)</option>
-                                    <option value="LSE">LSE (Spanish)</option>
-                                    <option value="DIGITS">Digits (0-9)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="record-label">Gesture Sign Label</label>
-                                <input type="text" id="record-label" placeholder="e.g. ThankYou, Hello, Namaste" class="custom-input">
-                            </div>
-                            <div class="record-instructions">
-                                <h5>Instructions:</h5>
-                                <p>Position your hand in front of the camera. Once landmarks are tracked, click <strong>"Capture Frame"</strong>. We recommend collecting 20-30 frames per gesture at slightly different positions/angles.</p>
-                            </div>
-                            
-                            <div class="recorder-actions">
-                                <button id="btn-capture-frame" class="btn btn-primary" disabled>
-                                    <i class="fa-solid fa-camera-retro"></i> Capture Frame
-                                </button>
-                                <button id="btn-save-gesture" class="btn btn-success" disabled>
-                                    <i class="fa-solid fa-floppy-disk"></i> Save to Dataset (<span id="recorded-count">0</span> frames)
-                                </button>
-                                <button id="btn-clear-recorded" class="btn btn-danger" style="display:none;">
-                                    Reset Recording
-                                </button>
-                                <a id="btn-export-dataset" href="/api/export_dataset" download class="btn btn-secondary" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; vertical-align: middle;">
-                                    <i class="fa-solid fa-download"></i> Export Dataset
-                                </a>
-                            </div>
-                            <div id="record-status-msg" class="status-msg"></div>
-                            
-                            <!-- Live Thumbnail Gallery -->
-                            <div id="capture-thumbnails-gallery" style="display: flex; gap: 0.5rem; overflow-x: auto; margin-top: 1rem; padding: 0.5rem 0; border-top: 1px dashed var(--border-color); min-height: 70px;"></div>
-                            
-                            <!-- Dataset Stats Dashboard -->
-                            <div class="dataset-stats-dashboard" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
-                                <h4 style="font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
-                                    <span><i class="fa-solid fa-database"></i> Dataset Composition Overview</span>
-                                    <span style="font-size: 0.8rem; color: var(--color-gnn); font-weight: 600;" id="stats-total-samples">Total Samples: 0</span>
-                                </h4>
-                                <div id="dataset-stats-container" style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; padding-right: 0.25rem;">
-                                    <div class="stats-placeholder" style="color: var(--text-secondary); font-style: italic; font-size: 0.8rem; text-align: center; padding: 1rem 0;">Loading dataset composition...</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tab: Practice Room (Quiz) -->
-                    <div class="tab-content" id="practice-tab">
-                        <div class="card-header">
-                            <h3><i class="fa-solid fa-graduation-cap"></i> Practice Room</h3>
-                            <div style="font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--color-success);" id="practice-score">Score: 0</div>
-                        </div>
-                        <div class="practice-container" style="display: flex; flex-direction: column; gap: 1.5rem; text-align: center; padding: 2rem 1.5rem; background: rgba(255, 255, 255, 0.015); border: 1px solid var(--border-color); border-radius: 16px; align-items: center; justify-content: center; min-height: 280px; position: relative;">
-                            <canvas id="confetti-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; border-radius: 16px;"></canvas>
-                            
-                            <div class="practice-quiz" style="z-index: 1;">
-                                <h4 style="color: var(--text-secondary); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 0.5rem;">Can you perform this sign?</h4>
-                                <div id="practice-target-word" style="font-family: 'Space Grotesk', sans-serif; font-size: 3rem; font-weight: 800; color: var(--color-gnn); margin-bottom: 1rem; text-shadow: 0 0 15px rgba(0, 242, 254, 0.3);"> Namaste </div>
-                                <div id="practice-hint" style="font-size: 0.85rem; color: var(--text-secondary); font-style: italic; margin-bottom: 1.5rem;">Culture context: ISL</div>
-                                
-                                <div class="practice-feedback" id="practice-feedback-msg" style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; height: 30px; color: var(--text-secondary);">
-                                    Position hand to start...
-                                </div>
-                                
-                                <div class="practice-actions" style="display: flex; justify-content: center; gap: 0.5rem; align-items: center;">
-                                    <button id="btn-skip-practice" class="btn btn-secondary">
-                                        <i class="fa-solid fa-forward"></i> Skip Word
-                                    </button>
-                                    <button id="btn-reset-score" class="btn btn-danger btn-sm" style="padding: 0.4rem 0.75rem; font-size: 0.75rem;">
-                                        Reset Game
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tab 3: Model Benchmarks -->
-                    <div class="tab-content" id="metrics-tab">
-                                             <!-- edited on 04/06/26 By Nithesh kumar -->
-                        <div class="card-header" style="flex-wrap: wrap; gap: 1rem;">
-                            <h3><i class="fa-solid fa-chart-bar"></i> Performance Benchmark</h3>
-                            <div class="training-config" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-                                <div style="display: flex; align-items: center; gap: 0.35rem;">
-                                    <label for="train-epochs" style="font-size: 0.8rem; color: var(--text-secondary);">Epochs:</label>
-                                    <select id="train-epochs" class="custom-select" style="padding: 0.3rem 1.5rem 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 6px; height: 32px;">
-                                        <option value="20">20</option>
-                                        <option value="50">50</option>
-                                        <option value="100" selected>100</option>
-                                        <option value="150">150</option>
-                                    </select>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 0.35rem;">
-                                    <label for="train-lr" style="font-size: 0.8rem; color: var(--text-secondary);">LR:</label>
-                                    <select id="train-lr" class="custom-select" style="padding: 0.3rem 1.5rem 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 6px; height: 32px;">
-                                        <option value="0.01">0.01</option>
-                                        <option value="0.005">0.005</option>
-                                        <option value="0.001" selected>0.001</option>
-                                        <option value="0.0005">0.0005</option>
-                                    </select>
-                                </div>
-                                <button id="btn-retrain" class="btn btn-primary" style="height: 32px; padding: 0 0.85rem;">
-                                    <i class="fa-solid fa-rotate"></i> Retrain Models
-                                </button>
-                            </div>
-                        </div>
-                        <div class="metrics-scroller">
-                            <div class="charts-grid">
-                                <div class="chart-container">
-                                    <h4>Accuracy Comparison (%)</h4>
-                                    <canvas id="accuracy-chart"></canvas>
-                                </div>
-                                <div class="chart-container">
-                                    <h4>Average Inference Latency (ms)</h4>
-                                    <canvas id="latency-chart"></canvas>
-                                </div>
-                            </div>
-                            
-                            <div class="training-metrics-table-wrapper">
-                                <h4>Model Comparison Summary</h4>
-                                <table class="metrics-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Model Architecture</th>
-                                            <th>Validation Accuracy</th>
-                                            <th>Training Time</th>
-                                            <th>Inference Latency</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td><strong class="gnn-text">Graph Neural Network (GCN)</strong></td>
-                                            <td id="table-gnn-acc">---</td>
-                                            <td id="table-gnn-time">---</td>
-                                            <td id="table-gnn-lat">---</td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong class="mlp-text">Multi-Layer Perceptron (MLP)</strong></td>
-                                            <td id="table-mlp-acc">---</td>
-                                            <td id="table-mlp-time">---</td>
-                                            <td id="table-mlp-lat">---</td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong class="rf-text">Random Forest Classifier</strong></td>
-                                            <td id="table-rf-acc">---</td>
-                                            <td id="table-rf-time">---</td>
-                                            <td id="table-rf-lat">---</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="chart-container full-width">
-                                <h4>Training Loss History (PyTorch GCN vs MLP)</h4>
-                                <canvas id="loss-history-chart"></canvas>
-                            </div>
-                            
-                                          <!-- edited on 04/06/26 by Nithesh kumar -->
-                            <div class="training-history-log-wrapper" style="margin-top: 2rem; margin-bottom: 2rem;">
-                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-                                     <h4 style="margin-bottom: 0;">Historical Training Runs Log</h4>
-                                     <div style="display: flex; gap: 0.5rem;">
-                                         <button id="btn-export-history" class="btn btn-secondary btn-sm" style="display: none; padding: 0.4rem 0.75rem; font-size: 0.75rem;">
-                                             <i class="fa-solid fa-file-csv"></i> Export CSV
-                                         </button>
-                                         <button id="btn-clear-history" class="btn btn-danger btn-sm" style="display: none; padding: 0.4rem 0.75rem; font-size: 0.75rem;">
-                                             <i class="fa-solid fa-trash-can"></i> Clear History
-                                         </button>
-                                     </div>
-                                 </div>
-                                 <table class="metrics-table" id="history-runs-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Timestamp</th>
-                                            <th>GCN Accuracy</th>
-                                            <th>MLP Accuracy</th>
-                                            <th>RF Accuracy</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="history-runs-tbody">
-                                        <tr>
-                                            <td colspan="4" style="text-align: center; color: var(--text-secondary);">No history log loaded yet.</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </main>
-    </div>
-
-    <!-- Re-training Loader Modal -->
-    <div class="modal-overlay" id="training-modal">
-        <div class="modal-card" style="text-align: center;">
-            <div class="spinner"></div>
-            <h3 id="training-modal-title">Training in Progress</h3>
-            <p id="training-modal-status">Initializing training parameters...</p>
-            <div id="training-modal-details" style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
-                Epoch: 0 / -- | Loss: --
-            </div>
-            <div class="modal-progress-track">
-                <div class="modal-progress-bar" id="training-modal-progress-bar" style="width: 0%"></div>
+        <!-- Brand (text only, no icon/logo) -->
+        <div class="brand">
+            <div class="brand-text">
+                <h1>HandSpeak</h1>
+                <span>AI Sign Language Recognition</span>
             </div>
         </div>
+
+        <!-- Navigation -->
+        <nav class="nav-menu">
+            <button class="nav-btn active" data-target="live-tab">
+                <i class="fa-solid fa-video"></i> Live Inference
+            </button>
+            <button class="nav-btn" data-target="signs-tab">
+                <i class="fa-solid fa-hand"></i> Signs Guide
+            </button>
+            <button class="nav-btn" data-target="record-tab">
+                <i class="fa-solid fa-circle-dot"></i> Gesture Recorder
+            </button>
+            <button class="nav-btn" data-target="practice-tab">
+                <i class="fa-solid fa-graduation-cap"></i> Practice Room
+            </button>
+            <button class="nav-btn" data-target="metrics-tab">
+                <i class="fa-solid fa-chart-line"></i> Model Benchmarks
+            </button>
+        </nav>
+
+        <!-- Theme Switcher -->
+        <div class="theme-switcher-wrapper">
+            <span class="theme-switcher-label">
+                <i class="fa-solid fa-circle-half-stroke"></i> UI Theme
+            </span>
+            <div class="theme-buttons">
+                <button class="theme-dot active" data-theme="cyan" title="Neon Cyan"
+                    style="background: linear-gradient(135deg, #00d4ff, #6366f1);"></button>
+                <button class="theme-dot" data-theme="solar" title="Solar Flare"
+                    style="background: linear-gradient(135deg, #ff3e6c, #ff9a5c);"></button>
+                <button class="theme-dot" data-theme="emerald" title="Emerald"
+                    style="background: linear-gradient(135deg, #00e890, #60f0ff);"></button>
+            </div>
+        </div>
+
+        <!-- Connection Status -->
+        <div class="connection-status">
+            <div class="status-indicator online" id="status-dot"></div>
+            <span id="status-text">Connecting to Backend…</span>
+        </div>
+
+    </aside>
+
+    <!-- ════════════════════ Main Content ═════════════════════ -->
+    <main class="main-content">
+
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-title">
+                <h2>Real-time Sign Language Detection</h2>
+                <p>ASL · ISL · BSL · LSE · Digits (0-9) · Universal — Rule-Based AI + GNN + MLP + Random Forest</p>
+            </div>
+
+            <div class="culture-indicator">
+                <div class="culture-indicator-row">
+                    <label for="global-culture">Active Culture:</label>
+                    <select id="global-culture" class="custom-select">
+                        <option value="UNIVERSAL" selected>Universal (All Signs)</option>
+                        <option value="ASL">ASL (American)</option>
+                        <option value="ISL">ISL (Indian)</option>
+                        <option value="BSL">BSL (British)</option>
+                        <option value="LSE">LSE (Spanish)</option>
+                        <option value="DIGITS">Digits (0-9)</option>
+                        <option value="ALL">All Cultures</option>
+                    </select>
+                </div>
+                <div class="confidence-slider-container">
+                    <label class="confidence-slider-label" for="conf-threshold-slider">Min Confidence:</label>
+                    <input type="range" id="conf-threshold-slider" min="30" max="95" value="70">
+                    <span class="confidence-slider-value" id="conf-threshold-value">70%</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+
+            <!-- ────────── Left Column ────────── -->
+            <div class="left-column">
+
+                <!-- Webcam Feed -->
+                <section class="camera-card card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-camera"></i> Interactive Video Feed</h3>
+                        <div class="camera-actions">
+                            <button id="toggle-camera" class="btn btn-secondary">
+                                <i class="fa-solid fa-video-slash"></i> Stop Camera
+                            </button>
+                        </div>
+                    </div>
+                    <div class="video-container">
+                        <video id="webcam" autoplay playsinline muted></video>
+                        <canvas id="hand-canvas"></canvas>
+                        <div class="detection-overlay" id="detection-msg">
+                            <span class="pulse-dot"></span> Detecting Hand Landmarks…
+                        </div>
+                    </div>
+                    <div class="fps-counter">
+                        <span>Webcam FPS: <strong id="webcam-fps">0</strong></span>
+                        <span>Backend Latency: <strong id="api-latency">0ms</strong></span>
+                    </div>
+                </section>
+
+                <!-- 3D Skeleton Visualiser -->
+                <section class="rotator-card card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-cube"></i> Interactive 3D Skeleton</h3>
+                        <span class="rotator-hint">
+                            <i class="fa-solid fa-arrows-spin"></i> Click &amp; Drag to Orbit
+                        </span>
+                    </div>
+                    <div class="rotator-container">
+                        <canvas id="rotator-canvas"></canvas>
+                    </div>
+                </section>
+
+            </div><!-- /left-column -->
+
+            <!-- ────────── Right Panel (Tabs) ────────── -->
+            <section class="details-card card">
+
+                <!-- ▸ Tab 1: Live Inference -->
+                <div class="tab-content active" id="live-tab">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-brain"></i> Multi-Model Predictions</h3>
+                    </div>
+
+                    <!-- Top prediction -->
+                    <div class="prediction-highlight">
+                        <div class="best-prediction">
+                            <span class="label">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Live Sign Detection (Rule-Based)
+                            </span>
+                            <h2 id="top-prediction-text">No Hand Detected</h2>
+                            <div class="prediction-meta">
+                                <span class="badge" id="top-culture-badge">---</span>
+                                <span class="badge" id="top-confidence-badge">---</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rule-Based -->
+                    <div class="model-result-row rule-highlighted">
+                        <div class="model-badge rule-color">
+                            ⚡ Rule
+                            <span class="tooltip-icon"><i class="fa-solid fa-circle-info"></i></span>
+                            <span class="tooltip-text">Rule-Based: Classifies gestures based on finger extension state (PIP vs TIP distance). Zero training needed, extremely fast (&lt;1ms).</span>
+                        </div>
+                        <div class="model-details">
+                            <div class="model-desc">
+                                <span class="model-prediction rule-text" id="rule-pred">---</span>
+                                <span class="model-latency" id="rule-lat">--- ms</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar rule-bg" id="rule-conf-bar" style="width:0%"></div>
+                            </div>
+                            <span class="confidence-val" id="rule-conf-text">Confidence: 0%</span>
+                        </div>
+                    </div>
+
+                    <!-- GNN -->
+                    <div class="model-result-row">
+                        <div class="model-badge gnn-color">
+                            GNN
+                            <span class="tooltip-icon"><i class="fa-solid fa-circle-info"></i></span>
+                            <span class="tooltip-text">Graph GCN: PyTorch model that treats landmarks as nodes on the skeleton graph. High structural accuracy.</span>
+                        </div>
+                        <div class="model-details">
+                            <div class="model-desc">
+                                <span class="model-prediction" id="gnn-pred">---</span>
+                                <span class="model-latency" id="gnn-lat">--- ms</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar gnn-bg" id="gnn-conf-bar" style="width:0%"></div>
+                            </div>
+                            <span class="confidence-val" id="gnn-conf-text">Confidence: 0%</span>
+                        </div>
+                    </div>
+
+                    <!-- MLP -->
+                    <div class="model-result-row">
+                        <div class="model-badge mlp-color">
+                            MLP
+                            <span class="tooltip-icon"><i class="fa-solid fa-circle-info"></i></span>
+                            <span class="tooltip-text">Multi-Layer Perceptron: PyTorch deep neural network operating on normalized coordinate vectors. Fast and accurate baseline.</span>
+                        </div>
+                        <div class="model-details">
+                            <div class="model-desc">
+                                <span class="model-prediction" id="mlp-pred">---</span>
+                                <span class="model-latency" id="mlp-lat">--- ms</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar mlp-bg" id="mlp-conf-bar" style="width:0%"></div>
+                            </div>
+                            <span class="confidence-val" id="mlp-conf-text">Confidence: 0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Random Forest -->
+                    <div class="model-result-row">
+                        <div class="model-badge rf-color">
+                            RF
+                            <span class="tooltip-icon"><i class="fa-solid fa-circle-info"></i></span>
+                            <span class="tooltip-text">Random Forest: Scikit-learn ensemble classifier built with decision trees. Provides classic ML benchmark.</span>
+                        </div>
+                        <div class="model-details">
+                            <div class="model-desc">
+                                <span class="model-prediction" id="rf-pred">---</span>
+                                <span class="model-latency" id="rf-lat">--- ms</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar rf-bg" id="rf-conf-bar" style="width:0%"></div>
+                            </div>
+                            <span class="confidence-val" id="rf-conf-text">Confidence: 0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Sentence Builder -->
+                    <div class="sentence-builder-wrapper">
+                        <div class="card-header-sub">
+                            <h4><i class="fa-solid fa-comment-dots"></i> Sentence Builder</h4>
+                            <button id="toggle-speech" class="btn btn-secondary btn-sm active">
+                                <i class="fa-solid fa-volume-high"></i> TTS: On
+                            </button>
+                        </div>
+                        <div class="sentence-box">
+                            <div id="sentence-text" class="sentence-placeholder">Hold a pose for 1.5 seconds to build a phrase…</div>
+                        </div>
+                        <div class="sentence-controls">
+                            <button id="btn-speak-all" class="btn btn-secondary btn-sm" disabled>
+                                <i class="fa-solid fa-play"></i> Speak
+                            </button>
+                            <button id="btn-copy-sentence" class="btn btn-secondary btn-sm" disabled>
+                                <i class="fa-solid fa-copy"></i> Copy
+                            </button>
+                            <button id="btn-backspace" class="btn btn-secondary btn-sm" disabled>
+                                <i class="fa-solid fa-backspace"></i> Backspace
+                            </button>
+                            <button id="btn-undo" class="btn btn-secondary btn-sm" disabled>
+                                <i class="fa-solid fa-rotate-left"></i> Undo
+                            </button>
+                            <button id="btn-download-sentence" class="btn btn-secondary btn-sm" disabled>
+                                <i class="fa-solid fa-download"></i> Save
+                            </button>
+                            <button id="btn-clear-sentence" class="btn btn-danger btn-sm" disabled>
+                                <i class="fa-solid fa-trash-can"></i> Clear
+                            </button>
+                        </div>
+                        <div class="keyboard-shortcuts-hint">
+                            <i class="fa-solid fa-keyboard"></i>
+                            <strong>Shortcuts:</strong>
+                            <code>[K]</code> Camera ·
+                            <code>[S]</code> Speech ·
+                            <code>[C]</code> Copy ·
+                            <code>[B]</code> Backspace ·
+                            <code>[U]</code> Undo ·
+                            <code>[R]</code> Clear
+                        </div>
+                    </div>
+
+                    <!-- Activity Log -->
+                    <div class="prediction-history-wrapper">
+                        <h4><i class="fa-solid fa-list-check"></i> Translation Activity Log</h4>
+                        <div class="history-list" id="history-list">
+                            <div class="history-item empty">No translations recorded yet.</div>
+                        </div>
+                    </div>
+                </div><!-- /live-tab -->
+
+                <!-- ▸ Tab 2: Signs Guide -->
+                <div class="tab-content" id="signs-tab">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-hand"></i> Signs Reference Guide</h3>
+                    </div>
+                    <p class="signs-guide-intro">
+                        Show these hand shapes to the camera. Hold each pose steady for ~1.5 seconds.
+                    </p>
+
+                    <!-- Filters -->
+                    <div class="signs-filter-wrapper">
+                        <div class="search-input-container">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="signs-search" placeholder="Search signs…" class="custom-input">
+                        </div>
+                        <div class="signs-culture-filters" id="signs-culture-filters">
+                            <button class="btn btn-secondary btn-sm active" data-filter="ALL">All</button>
+                            <button class="btn btn-secondary btn-sm" data-filter="UNIVERSAL">Universal</button>
+                            <button class="btn btn-secondary btn-sm" data-filter="ASL">ASL</button>
+                            <button class="btn btn-secondary btn-sm" data-filter="ISL">ISL</button>
+                            <button class="btn btn-secondary btn-sm" data-filter="BSL">BSL</button>
+                            <button class="btn btn-secondary btn-sm" data-filter="LSE">LSE</button>
+                            <button class="btn btn-secondary btn-sm" data-filter="DIGITS">Digits</button>
+                        </div>
+                    </div>
+
+                    <!-- Universal Signs -->
+                    <div class="signs-culture-block" data-culture="UNIVERSAL">
+                        <h4 class="signs-culture-title">⚡ Universal Signs</h4>
+                        <div class="signs-grid">
+                            <div class="sign-card"><span class="sign-emoji">👋</span><strong>Hello / Palm</strong><span class="sign-hint">All 5 fingers open</span></div>
+                            <div class="sign-card"><span class="sign-emoji">✊</span><strong>Fist / Yes</strong><span class="sign-hint">All fingers curled</span></div>
+                            <div class="sign-card"><span class="sign-emoji">👍</span><strong>Like / Thumbs Up</strong><span class="sign-hint">Thumb pointing up</span></div>
+                            <div class="sign-card"><span class="sign-emoji">👎</span><strong>Dislike</strong><span class="sign-hint">Thumb pointing down</span></div>
+                            <div class="sign-card"><span class="sign-emoji">✌️</span><strong>Peace / Victory</strong><span class="sign-hint">Index + Middle up</span></div>
+                            <div class="sign-card"><span class="sign-emoji">☝️</span><strong>Point / One</strong><span class="sign-hint">Index finger only</span></div>
+                            <div class="sign-card"><span class="sign-emoji">🤙</span><strong>Call</strong><span class="sign-hint">Thumb + Pinky out</span></div>
+                            <div class="sign-card"><span class="sign-emoji">🤘</span><strong>Rock</strong><span class="sign-hint">Index + Pinky up</span></div>
+                            <div class="sign-card"><span class="sign-emoji">🖕</span><strong>MidFinger</strong><span class="sign-hint">Middle finger only</span></div>
+                            <div class="sign-card"><span class="sign-emoji">👌</span><strong>OK</strong><span class="sign-hint">Thumb+Index circle</span></div>
+                            <div class="sign-card"><span class="sign-emoji">🤟</span><strong>ILY / Love</strong><span class="sign-hint">Thumb+Index+Pinky</span></div>
+                            <div class="sign-card"><span class="sign-emoji">🔫</span><strong>Gun</strong><span class="sign-hint">Index up, thumb out</span></div>
+                            <div class="sign-card"><span class="sign-emoji">4️⃣</span><strong>Four</strong><span class="sign-hint">4 fingers, no thumb</span></div>
+                            <div class="sign-card"><span class="sign-emoji">3️⃣</span><strong>Three</strong><span class="sign-hint">Index+Middle+Ring</span></div>
+                            <div class="sign-card"><span class="sign-emoji">🤌</span><strong>Pinkie</strong><span class="sign-hint">Pinky only extended</span></div>
+                            <div class="sign-card"><span class="sign-emoji">🖖</span><strong>Spock</strong><span class="sign-hint">Split index/mid &amp; ring/pinky</span></div>
+                        </div>
+                    </div>
+
+                    <!-- ASL -->
+                    <div class="signs-culture-block" data-culture="ASL">
+                        <h4 class="signs-culture-title">🇺🇸 ASL — American Sign Language</h4>
+                        <div class="signs-grid">
+                            <div class="sign-card"><span class="sign-emoji">👋</span><strong>Hello</strong><span class="sign-hint">Open palm wave</span></div>
+                            <div class="sign-card"><span class="sign-emoji">✊</span><strong>Yes</strong><span class="sign-hint">Closed fist nod</span></div>
+                            <div class="sign-card"><span class="sign-emoji">👎</span><strong>No</strong><span class="sign-hint">Thumb pointing down</span></div>
+                            <div class="sign-card"><span class="sign-emoji">☝️</span><strong>Point</strong><span class="sign-hint">Index only extended</span></div>
+                            <div class="sign-card"><span class="sign-emoji">👌</span><strong>OK</strong><span class="sign-hint">Thumb+Index circle</span></div>
+                            <div class="sign-card"><span class="sign-emoji">🤟</span><strong>Love (ILY)</strong><span class="sign-hint">I Love You sign</span></div>
+                        </div>
+                    </div>
+
+                    <!-- ISL -->
+                    <div class="signs-culture-block" data-culture="ISL">
+                        <h4 class="signs-culture-title">🇮🇳 ISL — Indian Sign Language</h4>
+                        <div class="signs-grid">
+                            <div class="sign-card"><span class="sign-emoji">🙏</span><strong>Namaste</strong><span class="sign-hint">Open palm greeting</span></div>
+                            <div class="sign-card"><span class="sign-emoji">👋</span><strong>Alvida</strong><span class="sign-hint">Open palm goodbye</span></div>
+                            <div class="sign-card"><span class="sign-emoji">👍</span><strong>TheekHai</strong><span class="sign-hint">Thumbs up = OK/Good</span></div>
+                            <div class="sign-card"><span class="sign-emoji">👎</span><strong>PasandNahi</strong><span class="sign-hint">Thumbs down = Dislike</span></div>
+                            <div class="sign-card"><span class="sign-emoji">✌️</span><strong>Vijay</strong><span class="sign-hint">V sign = Victory</span></div>
+                            <div class="sign-card"><span class="sign-emoji">👌</span><strong>Achaa</strong><span class="sign-hint">OK = Great/Achaa</span></div>
+                        </div>
+                    </div>
+
+                    <!-- BSL -->
+                    <div class="signs-culture-block" data-culture="BSL">
+                        <h4 class="signs-culture-title">🇬🇧 BSL — British Sign Language</h4>
+                        <div class="signs-grid">
+                            <div class="sign-card"><span class="sign-emoji">☝️</span><strong>Salute</strong><span class="sign-hint">Index finger point</span></div>
+                            <div class="sign-card"><span class="sign-emoji">👍</span><strong>Awesome</strong><span class="sign-hint">Thumbs up</span></div>
+                            <div class="sign-card"><span class="sign-emoji">👎</span><strong>Dislike</strong><span class="sign-hint">Thumbs down</span></div>
+                            <div class="sign-card"><span class="sign-emoji">✌️</span><strong>Peace</strong><span class="sign-hint">Index + Middle up</span></div>
+                            <div class="sign-card"><span class="sign-emoji">👌</span><strong>Perfect</strong><span class="sign-hint">OK ring sign</span></div>
+                        </div>
+                    </div>
+
+                    <!-- LSE -->
+                    <div class="signs-culture-block" data-culture="LSE">
+                        <h4 class="signs-culture-title">🇪🇸 LSE — Spanish Sign Language</h4>
+                        <div class="signs-grid">
+                            <div class="sign-card"><span class="sign-emoji">👋</span><strong>Hola</strong><span class="sign-hint">Open palm greeting</span></div>
+                            <div class="sign-card"><span class="sign-emoji">✊</span><strong>Si</strong><span class="sign-hint">Closed fist = Yes</span></div>
+                            <div class="sign-card"><span class="sign-emoji">👎</span><strong>No</strong><span class="sign-hint">Thumbs down = No</span></div>
+                            <div class="sign-card"><span class="sign-emoji">🤟</span><strong>Gracias</strong><span class="sign-hint">ILY sign = Thank You</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Digits -->
+                    <div class="signs-culture-block" data-culture="DIGITS">
+                        <h4 class="signs-culture-title">🔢 Digits (0–9)</h4>
+                        <div class="signs-grid">
+                            <div class="sign-card"><span class="sign-emoji">0️⃣</span><strong>0</strong><span class="sign-hint">Digit 0 sign</span></div>
+                            <div class="sign-card"><span class="sign-emoji">1️⃣</span><strong>1</strong><span class="sign-hint">Digit 1 sign</span></div>
+                            <div class="sign-card"><span class="sign-emoji">2️⃣</span><strong>2</strong><span class="sign-hint">Digit 2 sign</span></div>
+                            <div class="sign-card"><span class="sign-emoji">3️⃣</span><strong>3</strong><span class="sign-hint">Digit 3 sign</span></div>
+                            <div class="sign-card"><span class="sign-emoji">4️⃣</span><strong>4</strong><span class="sign-hint">Digit 4 sign</span></div>
+                            <div class="sign-card"><span class="sign-emoji">5️⃣</span><strong>5</strong><span class="sign-hint">Digit 5 sign</span></div>
+                            <div class="sign-card"><span class="sign-emoji">6️⃣</span><strong>6</strong><span class="sign-hint">Digit 6 sign</span></div>
+                            <div class="sign-card"><span class="sign-emoji">7️⃣</span><strong>7</strong><span class="sign-hint">Digit 7 sign</span></div>
+                            <div class="sign-card"><span class="sign-emoji">8️⃣</span><strong>8</strong><span class="sign-hint">Digit 8 sign</span></div>
+                            <div class="sign-card"><span class="sign-emoji">9️⃣</span><strong>9</strong><span class="sign-hint">Digit 9 sign</span></div>
+                        </div>
+                    </div>
+                </div><!-- /signs-tab -->
+
+                <!-- ▸ Tab 3: Gesture Recorder -->
+                <div class="tab-content" id="record-tab">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-circle-dot"></i> Record Custom Gesture</h3>
+                    </div>
+                    <div class="recorder-form">
+                        <div class="form-group">
+                            <label for="record-culture">Target Culture / Sign Language</label>
+                            <select id="record-culture" class="custom-select">
+                                <option value="UNIVERSAL" selected>Universal (All Signs)</option>
+                                <option value="ASL">ASL (American)</option>
+                                <option value="ISL">ISL (Indian)</option>
+                                <option value="BSL">BSL (British)</option>
+                                <option value="LSE">LSE (Spanish)</option>
+                                <option value="DIGITS">Digits (0-9)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="record-label">Gesture Sign Label</label>
+                            <input type="text" id="record-label" placeholder="e.g. ThankYou, Hello, Namaste" class="custom-input">
+                        </div>
+                        <div class="record-instructions">
+                            <h5>Instructions</h5>
+                            <p>Position your hand in front of the camera. Once landmarks are tracked, click <strong>"Capture Frame"</strong>. Collect 20–30 frames per gesture at slightly different positions and angles.</p>
+                        </div>
+
+                        <div class="recorder-actions">
+                            <button id="btn-capture-frame" class="btn btn-primary" disabled>
+                                <i class="fa-solid fa-camera-retro"></i> Capture Frame
+                            </button>
+                            <button id="btn-save-gesture" class="btn btn-success" disabled>
+                                <i class="fa-solid fa-floppy-disk"></i> Save to Dataset (<span id="recorded-count">0</span> frames)
+                            </button>
+                            <button id="btn-clear-recorded" class="btn btn-danger" style="display:none;">
+                                Reset Recording
+                            </button>
+                            <a id="btn-export-dataset" href="/api/export_dataset" download class="btn btn-secondary">
+                                <i class="fa-solid fa-download"></i> Export Dataset
+                            </a>
+                        </div>
+
+                        <div id="record-status-msg" class="status-msg"></div>
+
+                        <!-- Thumbnail Gallery -->
+                        <div id="capture-thumbnails-gallery" class="capture-gallery"></div>
+
+                        <!-- Dataset Stats -->
+                        <div class="dataset-stats-dashboard">
+                            <div class="dataset-stats-header">
+                                <h4><i class="fa-solid fa-database"></i> Dataset Composition</h4>
+                                <span class="dataset-stats-total" id="stats-total-samples">Total Samples: 0</span>
+                            </div>
+                            <div class="dataset-stats-scroller" id="dataset-stats-container">
+                                <div class="stats-placeholder">Loading dataset composition…</div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- /record-tab -->
+
+                <!-- ▸ Tab 4: Practice Room -->
+                <div class="tab-content" id="practice-tab">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-graduation-cap"></i> Practice Room</h3>
+                        <div class="practice-score-badge" id="practice-score">Score: 0</div>
+                    </div>
+
+                    <div class="practice-container">
+                        <canvas id="confetti-canvas" class="practice-confetti-canvas"></canvas>
+
+                        <div class="practice-quiz">
+                            <h4 class="practice-subtitle">Can you perform this sign?</h4>
+                            <div id="practice-target-word" class="practice-target-word">Namaste</div>
+                            <div id="practice-hint" class="practice-hint-text">Culture context: ISL</div>
+
+                            <div class="practice-feedback" id="practice-feedback-msg">
+                                Position hand to start…
+                            </div>
+
+                            <div class="practice-actions">
+                                <button id="btn-skip-practice" class="btn btn-secondary">
+                                    <i class="fa-solid fa-forward"></i> Skip Word
+                                </button>
+                                <button id="btn-reset-score" class="btn btn-danger btn-sm">
+                                    Reset Game
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- /practice-tab -->
+
+                <!-- ▸ Tab 5: Model Benchmarks -->
+                <div class="tab-content" id="metrics-tab">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-chart-bar"></i> Performance Benchmark</h3>
+                        <div class="training-config">
+                            <div class="training-config-group">
+                                <label class="training-config-label" for="train-epochs">Epochs:</label>
+                                <select id="train-epochs" class="custom-select">
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100" selected>100</option>
+                                    <option value="150">150</option>
+                                </select>
+                            </div>
+                            <div class="training-config-group">
+                                <label class="training-config-label" for="train-lr">LR:</label>
+                                <select id="train-lr" class="custom-select">
+                                    <option value="0.01">0.01</option>
+                                    <option value="0.005">0.005</option>
+                                    <option value="0.001" selected>0.001</option>
+                                    <option value="0.0005">0.0005</option>
+                                </select>
+                            </div>
+                            <button id="btn-retrain" class="btn btn-primary btn-sm">
+                                <i class="fa-solid fa-rotate"></i> Retrain Models
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="metrics-scroller">
+                        <!-- Charts -->
+                        <div class="charts-grid">
+                            <div class="chart-container">
+                                <h4>Accuracy Comparison (%)</h4>
+                                <canvas id="accuracy-chart"></canvas>
+                            </div>
+                            <div class="chart-container">
+                                <h4>Average Inference Latency (ms)</h4>
+                                <canvas id="latency-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Summary Table -->
+                        <div class="training-metrics-table-wrapper">
+                            <h4>Model Comparison Summary</h4>
+                            <table class="metrics-table">
+                                <thead>
+                                    <tr>
+                                        <th>Model Architecture</th>
+                                        <th>Validation Accuracy</th>
+                                        <th>Training Time</th>
+                                        <th>Inference Latency</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong class="gnn-text">Graph Neural Network (GCN)</strong></td>
+                                        <td id="table-gnn-acc">---</td>
+                                        <td id="table-gnn-time">---</td>
+                                        <td id="table-gnn-lat">---</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong class="mlp-text">Multi-Layer Perceptron (MLP)</strong></td>
+                                        <td id="table-mlp-acc">---</td>
+                                        <td id="table-mlp-time">---</td>
+                                        <td id="table-mlp-lat">---</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong class="rf-text">Random Forest Classifier</strong></td>
+                                        <td id="table-rf-acc">---</td>
+                                        <td id="table-rf-time">---</td>
+                                        <td id="table-rf-lat">---</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Loss History Chart -->
+                        <div class="chart-container full-width">
+                            <h4>Training Loss History (PyTorch GCN vs MLP)</h4>
+                            <canvas id="loss-history-chart"></canvas>
+                        </div>
+
+                        <!-- Historical Runs Log -->
+                        <div class="training-history-log-wrapper">
+                            <div class="training-history-header">
+                                <h4>Historical Training Runs Log</h4>
+                                <div class="training-history-actions">
+                                    <button id="btn-export-history" class="btn btn-secondary btn-sm" style="display:none;">
+                                        <i class="fa-solid fa-file-csv"></i> Export CSV
+                                    </button>
+                                    <button id="btn-clear-history" class="btn btn-danger btn-sm" style="display:none;">
+                                        <i class="fa-solid fa-trash-can"></i> Clear History
+                                    </button>
+                                </div>
+                            </div>
+                            <table class="metrics-table" id="history-runs-table">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>GCN Accuracy</th>
+                                        <th>MLP Accuracy</th>
+                                        <th>RF Accuracy</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-runs-tbody">
+                                    <tr>
+                                        <td colspan="4" style="text-align:center; color:var(--text-secondary);">No history log loaded yet.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div><!-- /metrics-scroller -->
+                </div><!-- /metrics-tab -->
+
+            </section><!-- /details-card -->
+
+        </div><!-- /dashboard-grid -->
+    </main>
+</div><!-- /app-container -->
+
+<!-- Re-training Modal -->
+<div class="modal-overlay" id="training-modal">
+    <div class="modal-card">
+        <div class="spinner"></div>
+        <h3>Training Models…</h3>
+        <p id="training-modal-msg">Please wait while the models are being trained on your dataset. This may take a few minutes.</p>
+        <div class="modal-progress-track">
+            <div class="modal-progress-bar"></div>
+        </div>
     </div>
+</div>
 
-    <!-- Global Toast Container -->
-    <div id="toast-container"></div>
+<!-- Toast Container -->
+<div id="toast-container"></div>
 
-    <!-- Custom Script -->
-    <script src="/static/app.js"></script>
+<!-- App Script -->
+<script src="/static/app.js"></script>
 </body>
 </html>
