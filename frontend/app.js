@@ -260,21 +260,34 @@ function onHandResults(results) {
     }
 }
 
-// Draw hand skeleton lines on 2D Overlay
+// Read the current theme accent color from CSS variables so the skeleton
+// always matches whichever theme (cyan / solar / emerald) is active.
+function getThemeColors() {
+    const style = getComputedStyle(document.body);
+    return {
+        accent:  style.getPropertyValue('--accent').trim()  || '#00d4ff',
+        mlp:     style.getPropertyValue('--color-mlp').trim() || '#c084fc',
+        success: style.getPropertyValue('--color-success').trim() || '#22d3a0',
+        danger:  style.getPropertyValue('--color-danger').trim()  || '#f43f5e'
+    };
+}
+
+// Draw hand skeleton lines on 2D overlay — colors follow active theme
 function drawSkeleton(landmarks) {
-    canvasCtx.strokeStyle = '#00f2fe';
+    const tc = getThemeColors();
+    canvasCtx.strokeStyle = tc.accent;
     canvasCtx.lineWidth = 4;
-    canvasCtx.fillStyle = '#bf55ec';
-    
+    canvasCtx.fillStyle = tc.mlp;
+
     const connections = [
         [0, 1], [1, 2], [2, 3], [3, 4], // Thumb
         [0, 5], [5, 6], [6, 7], [7, 8], // Index
         [0, 9], [9, 10], [10, 11], [11, 12], // Middle
         [0, 13], [13, 14], [14, 15], [15, 16], // Ring
         [0, 17], [17, 18], [18, 19], [19, 20], // Pinky
-        [5, 9], [9, 13], [13, 17] // Palm bottom
+        [5, 9], [9, 13], [13, 17] // Palm knuckles
     ];
-    
+
     // Draw bones
     connections.forEach(([u, v]) => {
         const ptA = landmarks[u];
@@ -286,7 +299,7 @@ function drawSkeleton(landmarks) {
             canvasCtx.stroke();
         }
     });
-    
+
     // Draw joints
     landmarks.forEach(pt => {
         canvasCtx.beginPath();
@@ -782,8 +795,13 @@ function render3DRotator(landmarks) {
         [5, 9], [9, 13], [13, 17] // Knuckles
     ];
     
-    // Glow path
-    rotatorCtx.strokeStyle = 'rgba(0, 242, 254, 0.45)';
+    // Read theme colors so the 3D skeleton matches the active UI theme
+    const tc = getThemeColors();
+
+    // Glow pass — wide, translucent stroke
+    rotatorCtx.strokeStyle = tc.accent.startsWith('#')
+        ? tc.accent + '70'   // append hex alpha
+        : tc.accent.replace(')', ', 0.4)').replace('rgb(', 'rgba(');
     rotatorCtx.lineWidth = 6;
     connections.forEach(([u, v]) => {
         const ptA = pts[u];
@@ -795,9 +813,9 @@ function render3DRotator(landmarks) {
             rotatorCtx.stroke();
         }
     });
-    
-    // Core skeleton path
-    rotatorCtx.strokeStyle = '#00f2fe';
+
+    // Core skeleton — crisp, solid stroke
+    rotatorCtx.strokeStyle = tc.accent;
     rotatorCtx.lineWidth = 2.5;
     connections.forEach(([u, v]) => {
         const ptA = pts[u];
@@ -809,19 +827,18 @@ function render3DRotator(landmarks) {
             rotatorCtx.stroke();
         }
     });
-    
-    // Draw joints
+
+    // Draw joints — wrist, fingertips, and knuckles with distinct colors
     pts.forEach((pt, idx) => {
         rotatorCtx.beginPath();
-        // Give fingertips and wrist distinct colors
         if (idx === 0) {
-            rotatorCtx.fillStyle = '#ff007b'; // Wrist is hot pink
+            rotatorCtx.fillStyle = tc.danger;   // wrist
             rotatorCtx.arc(pt.x, pt.y, 6, 0, 2 * Math.PI);
         } else if ([4, 8, 12, 16, 20].includes(idx)) {
-            rotatorCtx.fillStyle = '#00ff87'; // Fingertips are green
+            rotatorCtx.fillStyle = tc.success;  // fingertips
             rotatorCtx.arc(pt.x, pt.y, 5, 0, 2 * Math.PI);
         } else {
-            rotatorCtx.fillStyle = '#bf55ec'; // Sibling joints are purple
+            rotatorCtx.fillStyle = tc.mlp;      // knuckle joints
             rotatorCtx.arc(pt.x, pt.y, 4, 0, 2 * Math.PI);
         }
         rotatorCtx.fill();
@@ -1696,6 +1713,20 @@ function playSound(type) {
                 osc.start(now + idx * 0.12);
                 osc.stop(now + idx * 0.12 + 0.4);
             });
+        }
+        } else if (type === 'click') {
+            // Soft, short tick — used for button presses (backspace, undo, skip, reset)
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(900, now);
+            osc.frequency.exponentialRampToValueAtTime(400, now + 0.05);
+            gain.gain.setValueAtTime(0.04, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.08);
         }
     } catch (e) {
         console.warn("Audio Context failed to play sound", e);
