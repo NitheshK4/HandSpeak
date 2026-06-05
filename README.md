@@ -280,9 +280,18 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 ---
 
-## 🆕 Recent Updates ( b6083ccc-5d47-43c1-8fca-cabc20566bb8 / June 2026 )
+## 🆕 Recent Updates
 
-We implemented 6 key enhancements to the system:
+### UI Redesign — June 2026
+Complete frontend overhaul for a cleaner, more professional look:
+- 🎨 **CSS Design System**: Full rewrite of `styles.css` with a proper token-based design system (`--accent`, `--border`, `--r-md`, etc.) — no more scattered magic values
+- 🚫 **Logo Removed**: Replaced icon-based brand with a clean text-only wordmark using a gradient
+- 🧹 **Inline Style Cleanup**: Eliminated 200+ inline `style=""` attributes from `index.html` and replaced them with semantic CSS classes (`practice-subtitle`, `training-config-group`, `dataset-stats-header`, etc.)
+- 📐 **Consistent Spacing**: Unified spacing scale using CSS custom properties throughout all components
+- 📱 **Improved Responsive Layout**: Better mobile breakpoints with a bottom navigation bar on small screens
+- ♿ **Better Focus States**: Accessible focus rings and keyboard-navigable interactive elements
+
+### Previous Enhancements — June 2026
 1. **Sentence Builder Backspace**: Added a dedicated Backspace control and state management to let users delete mistakes in built sentences word by word.
 2. **Accessibility Keyboard Shortcuts**: Introduced keyboard keys to toggle camera `[K]`, speech `[S]`, copy `[C]`, backspace `[B]`, and clear `[R]`.
 3. **Dataset Export**: Created a backend endpoint `/api/export_dataset` and a UI download button to download the captured gesture dataset instantly.
