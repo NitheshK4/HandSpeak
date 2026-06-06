@@ -1713,7 +1713,6 @@ function playSound(type) {
                 osc.start(now + idx * 0.12);
                 osc.stop(now + idx * 0.12 + 0.4);
             });
-        }
         } else if (type === 'click') {
             // Soft, short tick — used for button presses (backspace, undo, skip, reset)
             const osc = audioCtx.createOscillator();
