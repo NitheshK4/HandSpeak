@@ -1814,11 +1814,19 @@ function checkPracticeMatch(label, confidence) {
     if (label.toLowerCase() === currentTarget.word.toLowerCase()) {
         isQuizCorrectLock = true;
         
-        playSound('success');
-        triggerConfetti();
-        
         practiceScore++;
         practiceStreak++;
+        
+        const isMilestone = (practiceStreak % 5 === 0);
+        
+        if (isMilestone) {
+            playSound('fanfare');
+            triggerConfetti(200);
+        } else {
+            playSound('success');
+            triggerConfetti(80);
+        }
+        
         if (practiceScoreEl) {
             practiceScoreEl.innerText = `Score: ${practiceScore}`;
         }
@@ -1827,8 +1835,13 @@ function checkPracticeMatch(label, confidence) {
         }
         
         if (practiceFeedbackMsgEl) {
-            practiceFeedbackMsgEl.innerText = "Correct! Awesome job! 🎉";
-            practiceFeedbackMsgEl.style.color = "var(--color-success)";
+            if (isMilestone) {
+                practiceFeedbackMsgEl.innerText = `Streak: ${practiceStreak}! Phenomenal! 🎉🔥`;
+                practiceFeedbackMsgEl.style.color = "var(--accent)";
+            } else {
+                practiceFeedbackMsgEl.innerText = "Correct! Awesome job! 🎉";
+                practiceFeedbackMsgEl.style.color = "var(--color-success)";
+            }
         }
         
         setTimeout(() => {
@@ -1921,11 +1934,11 @@ class ConfettiParticle {
     }
 }
 
-function triggerConfetti() {
+function triggerConfetti(count = 80) {
     if (!confettiCanvas) return;
     initConfettiCanvas();
     confettiParticles = [];
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < count; i++) {
         confettiParticles.push(new ConfettiParticle(confettiCanvas.width, confettiCanvas.height));
     }
     if (confettiAnimationId) cancelAnimationFrame(confettiAnimationId);
