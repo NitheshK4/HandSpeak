@@ -94,6 +94,11 @@ const captureThumbnailsGallery = document.getElementById('capture-thumbnails-gal
 const btnRetrain = document.getElementById('btn-retrain');
 const trainingModal = document.getElementById('training-modal');
 
+// Shortcuts Elements
+const btnShortcutsHelp = document.getElementById('btn-shortcuts-help');
+const btnCloseShortcuts = document.getElementById('btn-close-shortcuts');
+const shortcutsModal = document.getElementById('shortcuts-modal');
+
 // Resize Canvases
 function resizeCanvases() {
     canvasElement.width = videoElement.videoWidth || 640;
@@ -1692,6 +1697,37 @@ if (toggleSfxBtn) {
         }
     });
 }
+
+// BIND SHORTCUTS HELP MODAL
+if (btnShortcutsHelp && shortcutsModal) {
+    btnShortcutsHelp.addEventListener('click', () => {
+        playSound('click');
+        shortcutsModal.classList.add('active');
+    });
+}
+
+if (btnCloseShortcuts && shortcutsModal) {
+    btnCloseShortcuts.addEventListener('click', () => {
+        playSound('click');
+        shortcutsModal.classList.remove('active');
+    });
+}
+
+if (shortcutsModal) {
+    shortcutsModal.addEventListener('click', (e) => {
+        if (e.target === shortcutsModal) {
+            playSound('click');
+            shortcutsModal.classList.remove('active');
+        }
+    });
+}
+
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && shortcutsModal && shortcutsModal.classList.contains('active')) {
+        playSound('click');
+        shortcutsModal.classList.remove('active');
+    }
+});
 
 // Web Audio API Synthesizer
 let audioCtx = null;
