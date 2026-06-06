@@ -1773,6 +1773,7 @@ const PRACTICE_WORDS = [
     { word: "Gun", culture: "UNIVERSAL", hint: "Point index forward and thumb up" }
 ];
 let practiceScore = 0;
+let practiceStreak = 0;
 let currentPracticeIndex = -1; // Start at -1 so first call increments to 0
 let isQuizCorrectLock = false;
 
@@ -1781,6 +1782,7 @@ const practiceTargetWordEl = document.getElementById('practice-target-word');
 const practiceHintEl = document.getElementById('practice-hint');
 const practiceFeedbackMsgEl = document.getElementById('practice-feedback-msg');
 const practiceScoreEl = document.getElementById('practice-score');
+const practiceStreakEl = document.getElementById('practice-streak');
 const btnSkipPractice = document.getElementById('btn-skip-practice');
 const btnResetScore = document.getElementById('btn-reset-score');
 
@@ -1816,8 +1818,12 @@ function checkPracticeMatch(label, confidence) {
         triggerConfetti();
         
         practiceScore++;
+        practiceStreak++;
         if (practiceScoreEl) {
             practiceScoreEl.innerText = `Score: ${practiceScore}`;
+        }
+        if (practiceStreakEl) {
+            practiceStreakEl.innerText = `Streak: ${practiceStreak}`;
         }
         
         if (practiceFeedbackMsgEl) {
@@ -1839,6 +1845,10 @@ function checkPracticeMatch(label, confidence) {
 if (btnSkipPractice) {
     btnSkipPractice.addEventListener('click', () => {
         playSound('click');
+        practiceStreak = 0;
+        if (practiceStreakEl) {
+            practiceStreakEl.innerText = `Streak: 0`;
+        }
         loadNextPracticeWord();
     });
 }
@@ -1847,8 +1857,12 @@ if (btnResetScore) {
     btnResetScore.addEventListener('click', () => {
         playSound('click');
         practiceScore = 0;
+        practiceStreak = 0;
         if (practiceScoreEl) {
             practiceScoreEl.innerText = `Score: 0`;
+        }
+        if (practiceStreakEl) {
+            practiceStreakEl.innerText = `Streak: 0`;
         }
         currentPracticeIndex = -1;
         loadNextPracticeWord();
