@@ -206,6 +206,26 @@ body {
     gap: 0.4rem;
 }
 
+/* SFX Switcher */
+.sfx-switcher-wrapper {
+    padding: 0.75rem 0.25rem 0.75rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.sfx-switcher-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
 .theme-buttons {
     display: flex;
     gap: 0.5rem;
@@ -1706,6 +1726,7 @@ body.emerald {
 
     .brand,
     .theme-switcher-wrapper,
+    .sfx-switcher-wrapper,
     .connection-status { display: none; }
 
     .nav-menu {

@@ -11,6 +11,7 @@ let framesCount = 0;
 // editen on 04/06/26 by Nithesh kumar
 // Speech and Sentence Builder State
 let isSpeechEnabled = true;
+let isSfxEnabled = localStorage.getItem('handspeak-sfx') !== 'false';
 let sentenceWords = [];
 let lastTopPrediction = "";
 let predictionHeldCount = 0;
@@ -1667,6 +1668,31 @@ if (savedTheme) {
     if (activeDot) activeDot.click();
 }
 
+// BIND SFX SWITCHER
+const toggleSfxBtn = document.getElementById('toggle-sfx');
+if (toggleSfxBtn) {
+    if (isSfxEnabled) {
+        toggleSfxBtn.classList.add('active');
+        toggleSfxBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i> SFX: On';
+    } else {
+        toggleSfxBtn.classList.remove('active');
+        toggleSfxBtn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i> SFX: Off';
+    }
+    
+    toggleSfxBtn.addEventListener('click', () => {
+        isSfxEnabled = !isSfxEnabled;
+        localStorage.setItem('handspeak-sfx', isSfxEnabled);
+        if (isSfxEnabled) {
+            toggleSfxBtn.classList.add('active');
+            toggleSfxBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i> SFX: On';
+            playSound('click');
+        } else {
+            toggleSfxBtn.classList.remove('active');
+            toggleSfxBtn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i> SFX: Off';
+        }
+    });
+}
+
 // Web Audio API Synthesizer
 let audioCtx = null;
 
@@ -1678,6 +1704,7 @@ function initAudio() {
 
 function playSound(type) {
     try {
+        if (!isSfxEnabled) return;
         initAudio();
         if (!audioCtx) return;
         
